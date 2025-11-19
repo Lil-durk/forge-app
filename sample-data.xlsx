@@ -1,0 +1,11 @@
+Name,Email,Phone,Age,Department
+John Doe,john.doe@email.com,555-0123,28,Engineering
+Jane Smith,jane.smith@email.com,555-0124,32,Marketing
+Bob Johnson,bob.johnson@invalid-email,555-0125,45,Sales
+Alice Brown,alice.brown@email.com,,29,Engineering
+Charlie Wilson,charlie.wilson@email.com,555-0127,35,HR
+Diana Davis,diana.davis@email.com,555-0128,27,Marketing
+Eve Miller,eve.miller@email.com,555-0129,31,Sales
+Frank Garcia,frank.garcia@email.com,555-0130,42,Engineering
+Grace Lee,grace.lee@email.com,555-0131,26,HR
+Henry Taylor,henry.taylor@email.com,555-0132,38,Marketing

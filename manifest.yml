@@ -1,0 +1,28 @@
+modules:
+  jiraServiceManagement:portalRequestCreatePropertyPanel:
+    - key: ValidAIte-page
+      resource: main
+      resolver:
+        function: resolver
+      title: ValidAIte
+  function:
+    - key: resolver
+      handler: index.handler
+
+resources:
+  - key: main
+    path: static/validaite/build
+    tunnel:
+      port: 3000
+
+app:
+  runtime:
+    name: nodejs22.x
+    memoryMB: 256
+    architecture: arm64
+  id: ari:cloud:ecosystem::app/2e35b1f5-76b4-4783-ab49-67a609c07e61
+
+permissions:
+  content:
+    styles:
+      - 'unsafe-inline'
