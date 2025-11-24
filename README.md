@@ -25,8 +25,6 @@ A Forge app for Jira Service Management that provides AI-powered Excel file vali
 - **Memory**: 256MB ARM64 runtime
 - **Resolver Functions**:
   - `validateExcelData`: Main validation function using OpenAI
-  - `getHelloMessage`: Basic health check
-  - `getServerTime`: Server time synchronization
 
 ### Frontend (React App)
 - **Framework**: React 18.2.0
@@ -52,8 +50,8 @@ A Forge app for Jira Service Management that provides AI-powered Excel file vali
    npm install
    cd static/validaite && npm install
    
-   # Set OpenAI API key as environment variable
-   export OPENAI_API_KEY="your-openai-api-key"
+   # Set OpenAI API key in .env file (see API Key Setup below)
+   # Copy .env file and add your OpenAI API key
    
    # Build the React app
    npm run build
@@ -63,8 +61,17 @@ A Forge app for Jira Service Management that provides AI-powered Excel file vali
    forge install
    ```
 
-3. **Configuration**:
-   - Add your OpenAI API key to the Forge app environment variables
+3. **API Key Setup**:
+   - Get your OpenAI API key from: https://platform.openai.com/api-keys
+   - Set the environment variable using Forge CLI:
+     ```bash
+     forge variables set OPENAI_API_KEY your-actual-openai-api-key
+     ```
+   - Example: `forge variables set OPENAI_API_KEY sk-proj-abcd1234efgh5678ijkl9012mnop3456qrst7890uvwx1234yz567890ab`
+   - Verify it's set: `forge variables list`
+
+4. **Configuration**:
+   - The API key from `.env` will be automatically used by the Forge app
    - Configure the app in your Jira Service Management portal
 
 ## Usage

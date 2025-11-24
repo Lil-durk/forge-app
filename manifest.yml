@@ -26,3 +26,15 @@ permissions:
   content:
     styles:
       - 'unsafe-inline'
+  scopes:
+    - 'storage:app'
+    - 'read:jira-work'
+    - 'read:attachment:jira'
+  external:
+    fetch:
+      backend:
+        - '*.atlassian.net'
+        - 'https://api-v2.bonzai.iodigital.com'
+        - 'https://api-v2.bonzai.iodigital.com/*'
+        - 'https://*.bonzai.iodigital.com'
+        - 'https://bonzai.iodigital.com'

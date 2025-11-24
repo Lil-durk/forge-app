@@ -12,6 +12,7 @@
     "eslint-plugin-react-hooks": "^4.6.0"
   },
   "dependencies": {
+    "@forge/api": "^6.3.0",
     "@forge/resolver": "1.7.1",
     "openai": "^6.9.1"
   }

@@ -49,3 +49,6 @@ Thumbs.db
 *.wmv
 
 /.forge/
+
+# Environment variables (contains sensitive API keys)
+.env
