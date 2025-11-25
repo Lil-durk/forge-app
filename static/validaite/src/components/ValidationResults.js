@@ -42,7 +42,7 @@ const ValidationResults = ({ validationResult }) => {
         
         <div className="validation-status">
           <div className={`status-badge ${validationResult.validation.isValid ? 'valid' : 'invalid'}`}>
-            {validationResult.validation.isValid ? '✅ Valid' : '❌ Issues Found'}
+            {validationResult.validation.isValid ? 'Valid' : 'Issues Found'}
           </div>
           <p>{validationResult.validation.summary}</p>
         </div>

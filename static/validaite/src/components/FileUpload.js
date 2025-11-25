@@ -27,20 +27,20 @@ const FileUpload = ({ onFileUpload, loading, fileName, error }) => {
 
       {fileName && (
         <div className="detected-file">
-          <span>📄 Selected file: <strong>{fileName}</strong></span>
+          <span>Selected file: <strong>{fileName}</strong></span>
         </div>
       )}
 
       {loading && (
         <div className="validation-progress">
           <div className="spinner"></div>
-          <span>🤖 AI is validating your Excel data...</span>
+          <span>AI is validating your Excel data...</span>
         </div>
       )}
 
       {error && (
         <div className="error-message">
-          ❌ {error}
+          {error}
         </div>
       )}
     </div>

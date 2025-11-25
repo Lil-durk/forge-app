@@ -75,9 +75,9 @@ const JiraIntegration = ({
                   </span>
                 </div>
                 <div className={`upload-status ${upload.validationStatus}`}>
-                  {upload.validationStatus === 'pending' && '⏳ Pending'}
-                  {upload.validationStatus === 'completed' && '✅ Validated'}
-                  {upload.validationStatus === 'error' && '❌ Error'}
+                  {upload.validationStatus === 'pending' && 'Pending...'}
+                  {upload.validationStatus === 'completed' && 'Validated'}
+                  {upload.validationStatus === 'error' && 'Error'}
                 </div>
               </div>
             ))}

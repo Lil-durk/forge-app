@@ -22,7 +22,7 @@ const ApiTest = ({ onTestApi, testingApi, apiTestResult }) => {
           marginTop: '10px'
         }}
       >
-        {testingApi ? '🔄 Testing API Key...' : '🔑 Test LiteLLM API Key'}
+        {testingApi ? 'Testing API Key...' : 'Test LiteLLM API Key'}
       </button>
 
       {apiTestResult && (
@@ -37,7 +37,7 @@ const ApiTest = ({ onTestApi, testingApi, apiTestResult }) => {
             color: apiTestResult.success ? '#155724' : '#721c24'
           }}
         >
-          <h4>{apiTestResult.success ? '✅ API Key Test Successful' : '❌ API Key Test Failed'}</h4>
+          <h4>{apiTestResult.success ? 'API Key Test Successful!' : 'API Key Test Failed'}</h4>
           <p><strong>Message:</strong> {apiTestResult.message || apiTestResult.error}</p>
           {apiTestResult.apiKeyLength && (
             <p><strong>API Key Length:</strong> {apiTestResult.apiKeyLength} characters</p>

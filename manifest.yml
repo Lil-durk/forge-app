@@ -38,3 +38,4 @@ permissions:
         - address: https://api-v2.bonzai.iodigital.com/*
         - address: https://*.bonzai.iodigital.com
         - address: https://bonzai.iodigital.com
+        - address: https://api.openai.com
