@@ -1,17 +1,5 @@
-/**
- * Excel data validation service using OpenAI
- * Handles the core validation logic and prompt generation
- */
-
 import { openai, OPENAI_CONFIG } from '../config/openai.js';
 
-/**
- * Generate validation prompt for OpenAI
- * @param {Array} dataPreview - First 10 rows of Excel data
- * @param {Array} headers - Column headers
- * @param {string} validationRules - Custom validation rules
- * @returns {string} Formatted prompt for OpenAI
- */
 export const generateValidationPrompt = (dataPreview, headers, validationRules) => {
     return `
 You are an Excel data validator. Please analyze the following Excel data and validate it according to these rules:

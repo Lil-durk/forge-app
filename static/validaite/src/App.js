@@ -10,10 +10,12 @@ import './App.css';
 
 // Import components
 import FileUpload from './components/FileUpload';
-import ApiTest from './components/ApiTest';
 import ValidationResults from './components/ValidationResults';
 import DataPreview from './components/DataPreview';
 import JiraIntegration from './components/JiraIntegration';
+import FileAttachmentManager from './components/FileAttachmentManager';
+import RealFileAttachmentTest from './components/RealFileAttachmentTest';
+// import PostCreationAttachment from './components/PostCreationAttachment';
 
 function App() {
   // State management
@@ -26,8 +28,6 @@ function App() {
   const [isMonitoring, setIsMonitoring] = useState(true);
   const [issueAttachments, setIssueAttachments] = useState([]);
   const [currentIssueKey, setCurrentIssueKey] = useState(null);
-  const [apiTestResult, setApiTestResult] = useState(null);
-  const [testingApi, setTestingApi] = useState(false);
 
   // Get current issue context on component mount
   useEffect(() => {
@@ -44,8 +44,11 @@ function App() {
           
           // Fetch attachments for this issue
           await fetchIssueAttachments(issueKey);
+          
+          // Auto-attach any pending files to this existing issue
+          await autoAttachPendingFiles(issueKey);
         } else {
-          console.log('No issue context found');
+          console.log('No issue context found - likely in request creation mode');
         }
       } catch (error) {
         console.error('Error getting issue context:', error.message);
@@ -54,6 +57,22 @@ function App() {
     
     getCurrentIssue();
   }, []);
+
+  // Auto-attach pending files to an issue
+  const autoAttachPendingFiles = async (issueKey) => {
+    try {
+      console.log('Checking for pending files to attach to:', issueKey);
+      const result = await invoke('attachAllPendingFiles', { issueKey });
+      
+      if (result.success && result.attachedCount > 0) {
+        console.log(`Successfully attached ${result.attachedCount} files to ${issueKey}`);
+        // Refresh attachments list
+        await fetchIssueAttachments(issueKey);
+      }
+    } catch (error) {
+      console.error('Error auto-attaching files:', error);
+    }
+  };
 
   // Monitor for external file uploads and issue attachments
   useEffect(() => {
@@ -197,24 +216,6 @@ function App() {
     }
   };
 
-  // Test API key configuration
-  const testApiKeyConfiguration = async () => {
-    console.log('=== TESTING API KEY CONFIGURATION ===');
-    setTestingApi(true);
-    setApiTestResult(null);
-    
-    try {
-      const result = await invoke('testApiKeyConfiguration');
-      setApiTestResult(result);
-    } catch (error) {
-      setApiTestResult({
-        success: false,
-        error: error.message
-      });
-    } finally {
-      setTestingApi(false);
-    }
-  };
 
   // Fetch attachments for the current issue
   const fetchIssueAttachments = async (issueKey) => {
@@ -263,6 +264,16 @@ function App() {
           <p>Upload your Excel file for AI-powered data validation</p>
         </div>
 
+        <FileAttachmentManager
+          onValidationComplete={(validationResult, fileName) => {
+            setValidationResult(validationResult);
+            setFileName(fileName);
+            setError('');
+          }}
+        />
+
+        <RealFileAttachmentTest />
+
         <JiraIntegration
           currentIssueKey={currentIssueKey}
           issueAttachments={issueAttachments}
@@ -271,13 +282,6 @@ function App() {
           onToggleMonitoring={() => setIsMonitoring(!isMonitoring)}
           onProcessAttachment={processJiraAttachment}
           loading={loading}
-        />
-
-        <FileUpload
-          onFileUpload={handleFileUpload}
-          loading={loading}
-          fileName={fileName}
-          error={error}
         />
 
         <DataPreview excelData={excelData} />

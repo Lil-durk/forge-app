@@ -5,25 +5,16 @@
 
 import { openai, OPENAI_CONFIG } from '../config/openai.js';
 
-/**
- * Test API key configuration for LiteLLM
- * Performs a simple API call to verify connectivity and authentication
- * @param {Object} req - Forge resolver request object
- * @returns {Object} Test result with success status and details
- */
 export const testApiKeyConfiguration = async (req) => {
     console.log('=== API KEY TEST CALLED ===');
     console.log('Testing LiteLLM virtual key configuration...');
     
     try {
-        // Log configuration details for debugging
         console.log('API Key present:', !!process.env.OPENAI_API_KEY);
         console.log('API Key length:', process.env.OPENAI_API_KEY ? process.env.OPENAI_API_KEY.length : 0);
         console.log('Base URL configured:', OPENAI_CONFIG.BASE_URL);
         console.log('OpenAI client status:', openai ? 'Initialized' : 'Not initialized');
         
-        // Test a simple API call to verify connectivity
-        // For LiteLLM, we use a standard model name for testing
         const testCompletion = await openai.chat.completions.create({
             model: OPENAI_CONFIG.TEST_MODEL,
             messages: [

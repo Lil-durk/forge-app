@@ -1,4 +1,4 @@
-# 🚀 Quick Deployment Guide for JSM Forge App
+# Quick Deployment Guide for JSM Forge App
 
 ## For Quick Code Updates
 
@@ -23,13 +23,11 @@ forge install
 
 ### For Development (Local Testing)
 ```bash
-# Start local development tunnel
 forge tunnel
 ```
 
 ### For Production Deployment
 ```bash
-# 1. Build the React app
 cd static/validaite && npm run build && cd ../..
 
 # 2. Deploy to Atlassian Cloud
@@ -47,7 +45,7 @@ forge install --upgrade
 cd static/validaite && npm run build && cd ../.. && forge deploy
 ```
 
-## 📋 Command Explanations
+## Command Explanations
 
 - **`npm run build`**: Compiles your React app into optimized production files
 - **`forge deploy`**: Uploads your app code to Atlassian's servers
@@ -55,7 +53,7 @@ cd static/validaite && npm run build && cd ../.. && forge deploy
 - **`forge install --upgrade`**: Updates an existing installation
 - **`forge tunnel`**: Runs the app locally for development/testing
 
-## 🎯 Typical Development Cycle
+## Typical Development Cycle
 
 1. **Make code changes** in `src/` or `static/validaite/src/`
 2. **Test locally**: `forge tunnel`
@@ -63,7 +61,7 @@ cd static/validaite && npm run build && cd ../.. && forge deploy
 4. **Deploy**: `forge deploy`
 5. **Update JSM**: `forge install --upgrade` (if needed)
 
-## 💡 Pro Tips
+## Pro Tips
 
 - Use `forge tunnel` for rapid development - no deployment needed
 - Only run `forge install` once per environment
@@ -71,14 +69,11 @@ cd static/validaite && npm run build && cd ../.. && forge deploy
 - The build step is only needed if you changed React code
 - Backend changes (in `src/index.js`) only need `forge deploy`
 
-## 🔍 Checking Status
+## Checking Status
 
 ```bash
-# See where your app is installed
 forge install list
 
-# View app logs
 forge logs
 
-# Check app status
 forge status
