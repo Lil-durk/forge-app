@@ -23,7 +23,6 @@ export const getIssueAttachments = async (issueKey) => {
         
         console.log('Fetching attachments for issue:', issueKey);
         
-        // Get issue details including attachments
         const response = await requestJira(`/rest/api/3/issue/${issueKey}?fields=attachment`);
         
         if (response.status !== 200) {
@@ -39,14 +38,12 @@ export const getIssueAttachments = async (issueKey) => {
         
         console.log('Found attachments:', attachments.length);
         
-        // Filter for Excel files
         const excelAttachments = attachments.filter(attachment => 
             attachment.filename && attachment.filename.match(/\.(xlsx|xls)$/i)
         );
         
         console.log('Excel attachments found:', excelAttachments.length);
         
-        // Format attachment data
         const formattedAttachments = excelAttachments.map(attachment => ({
             id: attachment.id,
             filename: attachment.filename,
@@ -54,7 +51,7 @@ export const getIssueAttachments = async (issueKey) => {
             mimeType: attachment.mimeType,
             created: attachment.created,
             author: attachment.author ? attachment.author.displayName : 'Unknown',
-            content: attachment.content // URL to download the file
+            content: attachment.content
         }));
         
         return {
@@ -92,7 +89,6 @@ export const processExcelAttachment = async (attachmentId, filename) => {
         
         console.log('Downloading attachment:', attachmentId, filename);
         
-        // Download the attachment content
         const response = await requestJira(`/rest/api/3/attachment/content/${attachmentId}`);
         
         if (response.status !== 200) {
@@ -103,13 +99,8 @@ export const processExcelAttachment = async (attachmentId, filename) => {
             };
         }
         
-        // Get the file content as buffer
         const fileBuffer = await response.buffer();
         console.log('Downloaded file size:', fileBuffer.length, 'bytes');
-        
-        // Note: To parse Excel files server-side, you would need to add the 'xlsx' package
-        // to the main package.json and import it here. For now, we'll return the file info
-        // and let the frontend handle the Excel parsing.
         
         return {
             success: true,
@@ -120,8 +111,6 @@ export const processExcelAttachment = async (attachmentId, filename) => {
                 size: fileBuffer.length,
                 downloadedAt: new Date().toISOString()
             },
-            // In a full implementation, you would parse the Excel here and return the data
-            // For now, we'll indicate that the file needs to be processed on the frontend
             requiresFrontendProcessing: true
         };
         
@@ -134,20 +123,10 @@ export const processExcelAttachment = async (attachmentId, filename) => {
     }
 };
 
-/**
- * Check if a filename is an Excel file
- * @param {string} filename - File name to check
- * @returns {boolean} True if Excel file, false otherwise
- */
 export const isExcelFile = (filename) => {
     return filename && filename.match(/\.(xlsx|xls)$/i);
 };
 
-/**
- * Format file size in human readable format
- * @param {number} bytes - File size in bytes
- * @returns {string} Formatted file size
- */
 export const formatFileSize = (bytes) => {
     if (bytes === 0) return '0 Bytes';
     

@@ -7,74 +7,91 @@ import Resolver from '@forge/resolver';
 import { validateExcelData } from './services/validation.js';
 import { monitorFileUpload, getRecentUploads, updateFileValidationStatus } from './services/storage.js';
 import { getIssueAttachments, processExcelAttachment } from './services/jira.js';
+import { analyzeDataPurpose, generateCustomRequirements, validateWithCustomRequirements } from './services/requirementsWizard.js';
+import { checkFileContentChange, cacheValidationResult, getCachedValidationResult, clearValidationCache, getCacheStatistics } from './services/fileContentCache.js';
 import { testApiKeyConfiguration } from './resolvers/apiTest.js';
 
-// Initialize the Forge resolver
 const resolver = new Resolver();
 
-/**
- * Test API key configuration for LiteLLM
- * Verifies that the OpenAI client is properly configured and can make API calls
- */
+// API Configuration
 resolver.define('testApiKeyConfiguration', testApiKeyConfiguration);
 
-/**
- * Validate Excel data using OpenAI
- * Takes Excel data and validation rules, returns AI-powered validation results
- */
+
+// Basic Validation
 resolver.define('validateExcelData', async (req) => {
-    console.log('validateExcelData resolver called');
     const { excelData, validationRules } = req.payload;
     return await validateExcelData(excelData, validationRules);
 });
 
-/**
- * Monitor file uploads and store file information
- * Detects Excel file uploads and stores metadata for tracking
- */
+
+
+// File Management
 resolver.define('monitorFileUpload', async (req) => {
-    console.log('monitorFileUpload resolver called');
     return await monitorFileUpload(req.payload);
 });
 
-/**
- * Get recent file uploads from storage
- * Returns list of recently uploaded files with their validation status
- */
 resolver.define('getRecentUploads', async (req) => {
-    console.log('getRecentUploads resolver called');
     return await getRecentUploads();
 });
 
-/**
- * Update file validation status in storage
- * Updates the validation status and results for a specific file
- */
 resolver.define('updateFileValidationStatus', async (req) => {
-    console.log('updateFileValidationStatus resolver called');
     const { fileId, validationResult } = req.payload;
     return await updateFileValidationStatus(fileId, validationResult);
 });
 
-/**
- * Get attachments from current Jira issue
- * Fetches and filters Excel attachments from a Jira issue
- */
+
+// Jira Integration
 resolver.define('getIssueAttachments', async (req) => {
-    console.log('getIssueAttachments resolver called');
     const { issueKey } = req.payload;
     return await getIssueAttachments(issueKey);
 });
 
-/**
- * Download and process Excel attachment from Jira
- * Downloads an Excel attachment and prepares it for validation
- */
 resolver.define('processExcelAttachment', async (req) => {
-    console.log('processExcelAttachment resolver called');
     const { attachmentId, filename } = req.payload;
     return await processExcelAttachment(attachmentId, filename);
 });
 
-// Export the resolver handler for Forge
+
+// Requirements Wizard
+resolver.define('analyzeDataPurpose', async (req) => {
+    const { excelData, fileName } = req.payload;
+    return await analyzeDataPurpose(excelData, fileName);
+});
+
+resolver.define('generateCustomRequirements', async (req) => {
+    const { purpose, excelData, fileName, baseRequirements } = req.payload;
+    return await generateCustomRequirements(purpose, excelData, fileName, baseRequirements);
+});
+
+resolver.define('validateWithCustomRequirements', async (req) => {
+    const { excelData, requirements, useCase } = req.payload;
+    return await validateWithCustomRequirements(excelData, requirements, useCase);
+});
+
+
+// File Content Caching
+resolver.define('checkFileContentChange', async (req) => {
+    const { excelData, fileName } = req.payload;
+    return await checkFileContentChange(excelData, fileName);
+});
+
+resolver.define('cacheValidationResult', async (req) => {
+    const { contentHash, validationResult, metadata } = req.payload;
+    return await cacheValidationResult(contentHash, validationResult, metadata);
+});
+
+resolver.define('getCachedValidationResult', async (req) => {
+    const { contentHash } = req.payload;
+    return await getCachedValidationResult(contentHash);
+});
+
+resolver.define('clearValidationCache', async (req) => {
+    return await clearValidationCache();
+});
+
+resolver.define('getCacheStatistics', async (req) => {
+    return await getCacheStatistics();
+});
+
+
 export const handler = resolver.getDefinitions();

@@ -1,17 +1,7 @@
-/**
- * Excel data validation service using OpenAI
- * Handles the core validation logic and prompt generation
- */
+// Excel data validation service using OpenAI
 
 import { openai, OPENAI_CONFIG } from '../config/openai.js';
 
-/**
- * Generate validation prompt for OpenAI
- * @param {Array} dataPreview - First 10 rows of Excel data
- * @param {Array} headers - Column headers
- * @param {string} validationRules - Custom validation rules
- * @returns {string} Formatted prompt for OpenAI
- */
 export const generateValidationPrompt = (dataPreview, headers, validationRules) => {
     return `
 You are an Excel data validator. Please analyze the following Excel data and validate it according to these rules:
@@ -51,11 +41,6 @@ Focus on:
 `;
 };
 
-/**
- * Call OpenAI API for data validation
- * @param {string} prompt - Validation prompt
- * @returns {Object} OpenAI completion response
- */
 export const callOpenAIValidation = async (prompt) => {
     console.log('Making OpenAI API call...');
     console.log('OpenAI client status:', openai ? 'Available' : 'Not available');
@@ -88,22 +73,15 @@ export const callOpenAIValidation = async (prompt) => {
     return completion;
 };
 
-/**
- * Parse and clean OpenAI response
- * @param {string} responseContent - Raw response from OpenAI
- * @returns {Object} Parsed validation result
- */
 export const parseValidationResponse = (responseContent) => {
     console.log('Raw OpenAI response:', responseContent);
     
-    // Extract JSON from markdown code blocks if present
     const jsonMatch = responseContent.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
     if (jsonMatch) {
         console.log('Found JSON in markdown code block, extracting...');
         responseContent = jsonMatch[1];
     }
     
-    // Clean up any remaining markdown artifacts
     responseContent = responseContent.trim();
     if (responseContent.startsWith('```json')) {
         responseContent = responseContent.replace(/^```json\s*/, '').replace(/\s*```$/, '');
@@ -117,12 +95,6 @@ export const parseValidationResponse = (responseContent) => {
     return JSON.parse(responseContent);
 };
 
-/**
- * Validate Excel data using OpenAI
- * @param {Array} excelData - Excel data array
- * @param {string} validationRules - Custom validation rules
- * @returns {Object} Validation result with success status and data
- */
 export const validateExcelData = async (excelData, validationRules) => {
     console.log('validateExcelData called');
     
@@ -133,8 +105,7 @@ export const validateExcelData = async (excelData, validationRules) => {
         };
     }
 
-    // Prepare the data for OpenAI validation
-    const dataPreview = excelData.slice(0, 10); // Send first 10 rows for validation
+    const dataPreview = excelData.slice(0, 10);
     const headers = Object.keys(excelData[0] || {});
     
     const prompt = generateValidationPrompt(dataPreview, headers, validationRules);
