@@ -19,8 +19,6 @@ export const generateFileContentHash = (excelData, fileName) => {
 
 export const cacheValidationResult = async (contentHash, validationResult, metadata = {}) => {
     try {
-        console.log('Caching validation result for hash:', contentHash.substring(0, 8) + '...');
-        
         const cacheEntry = {
             contentHash,
             validationResult,
@@ -32,10 +30,8 @@ export const cacheValidationResult = async (contentHash, validationResult, metad
         };
         
         await storage.set(`validation_cache_${contentHash}`, cacheEntry);
-        
         await addToCacheIndex(contentHash);
         
-        console.log('Validation result cached successfully');
         return { success: true };
         
     } catch (error) {
@@ -44,16 +40,11 @@ export const cacheValidationResult = async (contentHash, validationResult, metad
     }
 };
 
-
 export const getCachedValidationResult = async (contentHash) => {
     try {
-        console.log('Looking for cached validation result for hash:', contentHash.substring(0, 8) + '...');
-        
         const cacheEntry = await storage.get(`validation_cache_${contentHash}`);
         
         if (cacheEntry) {
-            console.log('Found cached validation result from:', cacheEntry.metadata.cachedAt);
-            
             // Update last accessed time
             cacheEntry.metadata.lastAccessed = new Date().toISOString();
             await storage.set(`validation_cache_${contentHash}`, cacheEntry);
@@ -61,7 +52,6 @@ export const getCachedValidationResult = async (contentHash) => {
             return cacheEntry;
         }
         
-        console.log('No cached validation result found');
         return null;
         
     } catch (error) {
@@ -70,11 +60,9 @@ export const getCachedValidationResult = async (contentHash) => {
     }
 };
 
-
 export const checkFileContentChange = async (excelData, fileName) => {
     try {
         const currentHash = generateFileContentHash(excelData, fileName);
-        console.log('Generated content hash:', currentHash.substring(0, 8) + '...');
         
         // Check if we have a cached result for this content
         const cachedResult = await getCachedValidationResult(currentHash);
@@ -97,7 +85,6 @@ export const checkFileContentChange = async (excelData, fileName) => {
         };
     }
 };
-
 
 const addToCacheIndex = async (contentHash) => {
     try {
@@ -125,11 +112,8 @@ const addToCacheIndex = async (contentHash) => {
     }
 };
 
-
 export const clearValidationCache = async () => {
     try {
-        console.log('Clearing all cached validation results...');
-        
         const cacheIndex = await storage.get('validation_cache_index') || [];
         
         // Delete all cached entries
@@ -140,7 +124,6 @@ export const clearValidationCache = async () => {
         // Clear the index
         await storage.delete('validation_cache_index');
         
-        console.log('Validation cache cleared successfully');
         return { success: true, clearedCount: cacheIndex.length };
         
     } catch (error) {
@@ -148,7 +131,6 @@ export const clearValidationCache = async () => {
         return { success: false, error: error.message };
     }
 };
-
 
 export const getCacheStatistics = async () => {
     try {

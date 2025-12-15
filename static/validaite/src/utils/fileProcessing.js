@@ -63,11 +63,10 @@ export const processUploadedFile = async (file, {
         setValidationResult(cachedResult.cachedResult.validationResult);
         setIsUsingCachedResult(true);
         setLoading(false);
-        setError(''); // Clear any previous errors
+        setError('');
         
-        return; // Skip Requirements Wizard and validation
+        return;
       } else {
-        // Different file content - proceed with new validation
         console.log('=== NEW FILE CONTENT DETECTED ===');
         console.log('Will proceed with fresh validation');
         
@@ -78,8 +77,20 @@ export const processUploadedFile = async (file, {
       
       setLoading(false);
       
-      // Show Requirements Wizard for new file content
-      setShowRequirementsWizard(true);
+      console.log('=== RUNNING AUTOMATIC STANDARD VALIDATION ===');
+      
+      const { validateData } = await import('./validation.js');
+      
+      setLoading(true);
+      await validateData(jsonData, file.name, {
+        setError,
+        setLoading,
+        setValidationResult,
+        currentFileHash: cachedResult.contentHash
+      });
+      
+      // Show Requirements Wizard for new file content (currently disabled)
+      // setShowRequirementsWizard(true);
       
     } catch (error) {
       console.error('Excel processing error:', error.message);

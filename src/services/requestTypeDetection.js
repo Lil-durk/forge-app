@@ -1,136 +1,115 @@
 /**
  * Request Type Detection Service
- * Uses Jira Service Management APIs to detect the current request type
+ * Detects and analyzes Jira Service Management request types from page context
  */
 
 import api, { route } from '@forge/api';
 
 /**
- * Get request type information from the current context
- * @param {Object} context - The Forge context object
- * @returns {Promise<Object>} Request type information
+ * Detects the request type from the current page context
+ * @param {Object} context - Page context object containing URL and other metadata
+ * @returns {Object} Request type information including ID, name, and service desk details
  */
-export async function detectRequestType(context, extractedRequestTypeId = null) {
+export const detectRequestType = async (context) => {
   try {
-    console.log('🔍 ValidAIte - Detecting request type from context:', context);
-    console.log('🔍 ValidAIte - Extracted request type ID from URL:', extractedRequestTypeId);
+    // Extract request type ID from URL if available
+    const url = context.extension?.url || context.siteUrl || '';
+    const requestTypeIdMatch = url.match(/requestType\/(\d+)/);
+    const extractedRequestTypeId = requestTypeIdMatch ? requestTypeIdMatch[1] : null;
     
-    // Extract potential request type ID from various sources
-    let requestTypeId = extractedRequestTypeId; // Prioritize URL-extracted ID
-    let serviceDeskId = null;
+    // Extract service desk ID from URL if available
+    const serviceDeskIdMatch = url.match(/servicedesk\/(\d+)/);
+    const serviceDeskId = serviceDeskIdMatch ? serviceDeskIdMatch[1] : null;
     
-    // If no URL-extracted ID, try to get from extension context
-    if (!requestTypeId && context.extension) {
-      requestTypeId = context.extension.requestTypeId || 
-                     context.extension.requestType?.id ||
-                     context.extension.context?.requestTypeId;
-      
-      serviceDeskId = context.extension.serviceDeskId ||
-                      context.extension.serviceDesk?.id ||
-                      context.extension.context?.serviceDeskId;
-    }
+    let requestTypeId = extractedRequestTypeId;
+    let requestTypeData = null;
     
-    console.log('🔍 ValidAIte - Final IDs to use:', { requestTypeId, serviceDeskId });
-    
-    // If we have a request type ID, fetch its details
-    if (requestTypeId) {
+    // Try to get request type information via API if we have an ID
+    if (requestTypeId && serviceDeskId) {
       try {
-        const requestTypeResponse = await api.asUser().requestJira(
-          route`/rest/servicedeskapi/requesttype/${requestTypeId}`
-        );
+        const requestTypeResponse = await api.asUser().requestJira(route`/rest/servicedeskapi/servicedesk/${serviceDeskId}/requesttype/${requestTypeId}`, {
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
         
         if (requestTypeResponse.status === 200) {
-          const requestTypeData = await requestTypeResponse.json();
-          console.log('✅ ValidAIte - Found request type via API:', requestTypeData);
-          
-          return {
-            success: true,
-            requestType: {
-              id: requestTypeData.id,
-              name: requestTypeData.name,
-              description: requestTypeData.description,
-              serviceDeskId: requestTypeData.serviceDeskId
-            }
-          };
+          requestTypeData = await requestTypeResponse.json();
         }
       } catch (apiError) {
-        console.log('⚠️ ValidAIte - API call failed:', apiError.message);
+        // API call failed, continue with other methods
       }
     }
     
-    // If we have a service desk ID but no request type ID, try to get request types for the service desk
-    if (serviceDeskId && !requestTypeId) {
+    // If we have service desk ID but no request type, try to get available request types
+    if (serviceDeskId && !requestTypeData) {
       try {
-        const requestTypesResponse = await api.asUser().requestJira(
-          route`/rest/servicedeskapi/servicedesk/${serviceDeskId}/requesttype`
-        );
+        const requestTypesResponse = await api.asUser().requestJira(route`/rest/servicedeskapi/servicedesk/${serviceDeskId}/requesttype`, {
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
         
         if (requestTypesResponse.status === 200) {
           const requestTypesData = await requestTypesResponse.json();
-          console.log('📋 ValidAIte - Available request types:', requestTypesData);
-          
-          // For now, we can't determine which specific one without more context
-          // But we can log what's available
-          return {
-            success: true,
-            serviceDeskId: serviceDeskId,
-            availableRequestTypes: requestTypesData.values || [],
-            message: 'Found service desk but could not determine specific request type'
-          };
+          // Use the first available request type as fallback
+          if (requestTypesData.values && requestTypesData.values.length > 0) {
+            requestTypeData = requestTypesData.values[0];
+            requestTypeId = requestTypeData.id;
+          }
         }
       } catch (apiError) {
-        console.log('⚠️ ValidAIte - Service desk API call failed:', apiError.message);
+        // API call failed, continue
       }
     }
     
-    // Try to extract from current URL if available in context
-    if (context.extension?.url || context.siteUrl) {
-      const url = context.extension?.url || context.siteUrl;
-      console.log('🌐 ValidAIte - Checking URL for request type info:', url);
-      
+    // If we still don't have request type data, try URL-based extraction
+    if (!requestTypeData) {
       try {
-        const urlObj = new URL(url);
-        const params = new URLSearchParams(urlObj.search);
+        const url = context.extension?.url || context.siteUrl;
         
-        const urlRequestTypeId = params.get('requestTypeId') || 
-                                params.get('rtId') || 
-                                params.get('requestType');
-        
-        if (urlRequestTypeId && urlRequestTypeId !== requestTypeId) {
-          // Try the API call with the URL-extracted ID
-          const requestTypeResponse = await api.asUser().requestJira(
-            route`/rest/servicedeskapi/requesttype/${urlRequestTypeId}`
-          );
+        if (url && url.includes('servicedesk') && url.includes('requestType')) {
+          const urlRequestTypeMatch = url.match(/requestType\/(\d+)/);
+          const urlServiceDeskMatch = url.match(/servicedesk\/(\d+)/);
           
-          if (requestTypeResponse.status === 200) {
-            const requestTypeData = await requestTypeResponse.json();
-            console.log('✅ ValidAIte - Found request type via URL extraction:', requestTypeData);
+          if (urlRequestTypeMatch && urlServiceDeskMatch) {
+            const urlRequestTypeId = urlRequestTypeMatch[1];
+            const urlServiceDeskId = urlServiceDeskMatch[1];
             
-            return {
-              success: true,
-              requestType: {
-                id: requestTypeData.id,
-                name: requestTypeData.name,
-                description: requestTypeData.description,
-                serviceDeskId: requestTypeData.serviceDeskId
+            const requestTypeResponse = await api.asUser().requestJira(route`/rest/servicedeskapi/servicedesk/${urlServiceDeskId}/requesttype/${urlRequestTypeId}`, {
+              headers: {
+                'Accept': 'application/json'
               }
-            };
+            });
+            
+            if (requestTypeResponse.status === 200) {
+              requestTypeData = await requestTypeResponse.json();
+              requestTypeId = urlRequestTypeId;
+            }
           }
         }
       } catch (urlError) {
-        console.log('⚠️ ValidAIte - URL parsing failed:', urlError.message);
+        // URL parsing failed, continue
       }
     }
     
-    // If all else fails, return what we know
     return {
-      success: false,
-      message: 'Could not determine specific request type',
+      success: true,
+      requestType: {
+        id: requestTypeId,
+        name: requestTypeData?.name || 'Unknown Request Type',
+        description: requestTypeData?.description || '',
+        serviceDeskId: serviceDeskId,
+        fields: requestTypeData?.fields || [],
+        issueTypeId: requestTypeData?.issueTypeId || null,
+        groupIds: requestTypeData?.groupIds || [],
+        icon: requestTypeData?.icon || null
+      },
       context: {
-        requestTypeId,
-        serviceDeskId,
-        moduleKey: context.moduleKey,
-        availableData: Object.keys(context.extension || {})
+        url: url,
+        extractedFromUrl: !!extractedRequestTypeId,
+        foundViaApi: !!requestTypeData,
+        serviceDeskId: serviceDeskId
       }
     };
     
@@ -139,7 +118,13 @@ export async function detectRequestType(context, extractedRequestTypeId = null) 
     return {
       success: false,
       error: error.message,
-      context: context
+      requestType: null,
+      context: {
+        url: context.extension?.url || context.siteUrl || '',
+        extractedFromUrl: false,
+        foundViaApi: false,
+        serviceDeskId: null
+      }
     };
   }
-}
+};

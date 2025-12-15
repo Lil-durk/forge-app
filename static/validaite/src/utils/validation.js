@@ -134,29 +134,3 @@ export const cacheValidationResult = async (currentFileHash, result, metadata) =
     // Don't fail the validation if caching fails
   }
 };
-
-/**
- * Test API key configuration
- * @param {Object} state - State setters for API test
- * @returns {Promise<void>}
- */
-export const testApiKeyConfiguration = async ({
-  setTestingApi,
-  setApiTestResult
-}) => {
-  console.log('=== TESTING API KEY CONFIGURATION ===');
-  setTestingApi(true);
-  setApiTestResult(null);
-  
-  try {
-    const result = await invoke('testApiKeyConfiguration');
-    setApiTestResult(result);
-  } catch (error) {
-    setApiTestResult({
-      success: false,
-      error: error.message
-    });
-  } finally {
-    setTestingApi(false);
-  }
-};

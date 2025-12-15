@@ -1,6 +1,6 @@
 /**
  * Main ValidAIte Application Component
- * Refactored to use custom hooks and utility functions for better maintainability
+ * Clean and optimized version with only active functionality
  */
 
 import React from 'react';
@@ -8,42 +8,24 @@ import './App.css';
 
 // Import custom hooks
 import { useAppState } from './hooks/useAppState';
-import { useJiraIntegration } from './hooks/useJiraIntegration';
 import { usePageContext } from './hooks/usePageContext';
 import { useConditionalDisplay } from './hooks/useConditionalDisplay';
 
 // Import utility functions
 import { processUploadedFile, handleFileUpload } from './utils/fileProcessing';
-import { validateData, validateWithCustomRequirements, testApiKeyConfiguration } from './utils/validation';
 
 // Import components
 import FileUpload from './components/FileUpload';
-import ApiTest from './components/ApiTest';
 import ValidationResults from './components/ValidationResults';
 import DataPreview from './components/DataPreview';
-import JiraIntegration from './components/JiraIntegration';
-import RequirementsWizard from './components/RequirementsWizard';
 import PageContextDisplay from './components/PageContextDisplay';
 import DeliveryLeadValidation from './components/DeliveryLeadValidation';
+import ClearCacheButton from './components/ClearCacheButton';
 
 function App() {
   const state = useAppState();
-  
   const { requestType } = usePageContext();
-  
-  const { shouldDisplay, displayReason, isEvaluating } = useConditionalDisplay();
-  
-  const { processJiraAttachment } = useJiraIntegration({
-    currentIssueKey: state.currentIssueKey,
-    setCurrentIssueKey: state.setCurrentIssueKey,
-    setIssueAttachments: state.setIssueAttachments,
-    recentUploads: state.recentUploads,
-    setRecentUploads: state.setRecentUploads,
-    isMonitoring: state.isMonitoring,
-    setFileName: state.setFileName,
-    setError: state.setError,
-    setValidationResult: state.setValidationResult
-  });
+  const { displayMode, displayReason, isEvaluating, forceDisplay } = useConditionalDisplay();
 
   // Handle file upload with validation
   const handleFileUploadEvent = (event) => {
@@ -64,56 +46,6 @@ function App() {
     });
   };
 
-  // Handle Requirements Wizard completion
-  const handleRequirementsGenerated = async (wizardResult) => {
-    state.setShowRequirementsWizard(false);
-    
-    await validateWithCustomRequirements(
-      state.excelData,
-      wizardResult,
-      state.fileName,
-      {
-        setError: state.setError,
-        setLoading: state.setLoading,
-        setValidationResult: state.setValidationResult,
-        setCustomRequirements: state.setCustomRequirements,
-        currentFileHash: state.currentFileHash
-      }
-    );
-  };
-
-  // Handle Requirements Wizard skip
-  const handleRequirementsSkipped = () => {
-    state.setShowRequirementsWizard(false);
-    state.setLoading(true);
-    
-    // Use standard validation
-    validateData(state.excelData, state.fileName, {
-      setError: state.setError,
-      setLoading: state.setLoading,
-      setValidationResult: state.setValidationResult,
-      currentFileHash: state.currentFileHash
-    });
-  };
-
-  // Test API key configuration
-  const handleTestApiKey = async () => {
-    await testApiKeyConfiguration({
-      setTestingApi: state.setTestingApi,
-      setApiTestResult: state.setApiTestResult
-    });
-  };
-
-  // Handle Jira attachment processing
-  const handleProcessJiraAttachment = (attachment) => {
-    processJiraAttachment(
-      attachment,
-      state.setLoading,
-      state.setFileName,
-      state.setError
-    );
-  };
-
   // Show loading state while evaluating display conditions
   if (isEvaluating) {
     return (
@@ -131,35 +63,57 @@ function App() {
     );
   }
 
-  // If the app should not be displayed, return null or a minimal message
-  if (!shouldDisplay) {
-    console.log('🚫 ValidAIte - App hidden:', displayReason);
+  // Show minimal view - simple hello message in white text
+  if (displayMode === 'minimal') {
+    console.log('🔄 ValidAIte - Showing minimal view:', displayReason);
     
-    // Return null to completely hide the app (recommended approach)
-    return null;
-    
-    // Alternative: Return a minimal message for debugging (uncomment if needed)
-    /*
     return (
       <div className="app">
-        <div className="container" style={{ padding: '10px', textAlign: 'center', color: '#666' }}>
-          <p>ValidAIte is not available on this request form.</p>
+        <div className="container" style={{ 
+          padding: '20px', 
+          textAlign: 'center', 
+          color: 'white',
+          backgroundColor: 'transparent'
+        }}>
+          <p style={{ 
+            fontSize: '16px', 
+            margin: '0',
+            fontWeight: 'normal'
+          }}>
+            Hello
+          </p>
           {process.env.NODE_ENV === 'development' && (
-            <div style={{ marginTop: '10px', fontSize: '12px' }}>
+            <div style={{ 
+              marginTop: '10px', 
+              fontSize: '12px', 
+              color: '#ccc',
+              opacity: '0.7'
+            }}>
               <p>Debug: {displayReason}</p>
-              <button onClick={() => forceDisplay(true)} style={{ marginTop: '5px' }}>
-                Force Display (Dev Only)
+              <button 
+                onClick={() => forceDisplay('full')} 
+                style={{ 
+                  marginTop: '5px',
+                  padding: '5px 10px',
+                  fontSize: '11px',
+                  backgroundColor: '#333',
+                  color: 'white',
+                  border: '1px solid #555',
+                  borderRadius: '3px',
+                  cursor: 'pointer'
+                }}
+              >
+                Force Full Display (Dev Only)
               </button>
             </div>
           )}
         </div>
       </div>
     );
-    */
   }
 
-  // App should be displayed - render the full interface
-  console.log('✅ ValidAIte - App displayed:', displayReason);
+  // Show full app interface
+  console.log('✅ ValidAIte - Showing full app:', displayReason);
 
   return (
     <div className="app">
@@ -169,7 +123,21 @@ function App() {
           <p>Upload your Excel file for AI-powered data validation</p>
           {process.env.NODE_ENV === 'development' && (
             <div style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>
-              Display reason: {displayReason}
+              Display mode: {displayMode} | Reason: {displayReason}
+              <button 
+                onClick={() => forceDisplay('minimal')} 
+                style={{ 
+                  marginLeft: '10px',
+                  padding: '2px 6px',
+                  fontSize: '10px',
+                  backgroundColor: '#f0f0f0',
+                  border: '1px solid #ccc',
+                  borderRadius: '3px',
+                  cursor: 'pointer'
+                }}
+              >
+                Test Minimal View
+              </button>
             </div>
           )}
         </div>
@@ -191,6 +159,15 @@ function App() {
           isUsingCachedResult={state.isUsingCachedResult}
         />
 
+        {/* Clear Cache Button - Always visible for developers */}
+        <ClearCacheButton 
+          onCacheCleared={(result) => {
+            console.log('Cache cleared:', result);
+            // Reset any cached state if needed
+            state.setIsUsingCachedResult(false);
+          }}
+        />
+
         {/* Delivery Lead Validation - Shows when Excel data is available */}
         {state.excelData && state.excelData.length > 0 && (
           <DeliveryLeadValidation
@@ -199,23 +176,6 @@ function App() {
           />
         )}
 
-        {/* Requirements Wizard */}
-        <RequirementsWizard
-          excelData={state.excelData}
-          fileName={state.fileName}
-          isVisible={state.showRequirementsWizard}
-          onRequirementsGenerated={handleRequirementsGenerated}
-          onSkip={handleRequirementsSkipped}
-        />
-
-        {/* API Test Component - Hidden but available for debugging */}
-        {process.env.NODE_ENV === 'development' && (
-          <ApiTest
-            onTestApi={handleTestApiKey}
-            testingApi={state.testingApi}
-            apiTestResult={state.apiTestResult}
-          />
-        )}
       </div>
     </div>
   );

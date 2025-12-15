@@ -9,194 +9,109 @@ import { monitorFileUpload, getRecentUploads, updateFileValidationStatus } from 
 import { getIssueAttachments, processExcelAttachment } from './services/jira.js';
 import { analyzeDataPurpose, generateCustomRequirements, validateWithCustomRequirements } from './services/requirementsWizard.js';
 import { checkFileContentChange, cacheValidationResult, getCachedValidationResult, clearValidationCache, getCacheStatistics } from './services/fileContentCache.js';
-import { testApiKeyConfiguration } from './resolvers/apiTest.js';
-import { performSimpleDeliveryLeadValidation } from './services/ai/simpleDeliveryLeadValidator.js';
+import { performDeliveryLeadValidation, analyzeContext } from './services/deliveryLeadService.js';
 
 const resolver = new Resolver();
 
-// API Configuration
-resolver.define('testApiKeyConfiguration', testApiKeyConfiguration);
-
-
+/**
+ * Generic error handler for resolver functions
+ * @param {Function} handler - The resolver function to wrap
+ * @param {string} operationName - Name of the operation for logging
+ * @returns {Function} Wrapped resolver function with error handling
+ */
+const withErrorHandling = (handler, operationName) => async (req) => {
+    try {
+        return await handler(req);
+    } catch (error) {
+        console.error(`❌ ${operationName} resolver error:`, error);
+        return {
+            success: false,
+            error: error.message || `Failed to ${operationName.toLowerCase()}`
+        };
+    }
+};
 
 // Basic Validation
-resolver.define('validateExcelData', async (req) => {
+resolver.define('validateExcelData', withErrorHandling(async (req) => {
     const { excelData, validationRules } = req.payload;
     return await validateExcelData(excelData, validationRules);
-});
-
-
+}, 'Excel Data Validation'));
 
 // File Management
-resolver.define('monitorFileUpload', async (req) => {
+resolver.define('monitorFileUpload', withErrorHandling(async (req) => {
     return await monitorFileUpload(req.payload);
-});
+}, 'File Upload Monitoring'));
 
-resolver.define('getRecentUploads', async (req) => {
+resolver.define('getRecentUploads', withErrorHandling(async (req) => {
     return await getRecentUploads();
-});
+}, 'Get Recent Uploads'));
 
-resolver.define('updateFileValidationStatus', async (req) => {
+resolver.define('updateFileValidationStatus', withErrorHandling(async (req) => {
     const { fileId, validationResult } = req.payload;
     return await updateFileValidationStatus(fileId, validationResult);
-});
-
+}, 'Update File Validation Status'));
 
 // Jira Integration
-resolver.define('getIssueAttachments', async (req) => {
+resolver.define('getIssueAttachments', withErrorHandling(async (req) => {
     const { issueKey } = req.payload;
     return await getIssueAttachments(issueKey);
-});
+}, 'Get Issue Attachments'));
 
-resolver.define('processExcelAttachment', async (req) => {
+resolver.define('processExcelAttachment', withErrorHandling(async (req) => {
     const { attachmentId, filename } = req.payload;
     return await processExcelAttachment(attachmentId, filename);
-});
-
+}, 'Process Excel Attachment'));
 
 // Requirements Wizard
-resolver.define('analyzeDataPurpose', async (req) => {
+resolver.define('analyzeDataPurpose', withErrorHandling(async (req) => {
     const { excelData, fileName } = req.payload;
     return await analyzeDataPurpose(excelData, fileName);
-});
+}, 'Analyze Data Purpose'));
 
-resolver.define('generateCustomRequirements', async (req) => {
+resolver.define('generateCustomRequirements', withErrorHandling(async (req) => {
     const { purpose, excelData, fileName, baseRequirements } = req.payload;
     return await generateCustomRequirements(purpose, excelData, fileName, baseRequirements);
-});
+}, 'Generate Custom Requirements'));
 
-resolver.define('validateWithCustomRequirements', async (req) => {
+resolver.define('validateWithCustomRequirements', withErrorHandling(async (req) => {
     const { excelData, requirements, useCase } = req.payload;
     return await validateWithCustomRequirements(excelData, requirements, useCase);
-});
-
+}, 'Validate With Custom Requirements'));
 
 // File Content Caching
-resolver.define('checkFileContentChange', async (req) => {
+resolver.define('checkFileContentChange', withErrorHandling(async (req) => {
     const { excelData, fileName } = req.payload;
     return await checkFileContentChange(excelData, fileName);
-});
+}, 'Check File Content Change'));
 
-resolver.define('cacheValidationResult', async (req) => {
+resolver.define('cacheValidationResult', withErrorHandling(async (req) => {
     const { contentHash, validationResult, metadata } = req.payload;
     return await cacheValidationResult(contentHash, validationResult, metadata);
-});
+}, 'Cache Validation Result'));
 
-resolver.define('getCachedValidationResult', async (req) => {
+resolver.define('getCachedValidationResult', withErrorHandling(async (req) => {
     const { contentHash } = req.payload;
     return await getCachedValidationResult(contentHash);
-});
+}, 'Get Cached Validation Result'));
 
-resolver.define('clearValidationCache', async (req) => {
+resolver.define('clearValidationCache', withErrorHandling(async (req) => {
     return await clearValidationCache();
-});
+}, 'Clear Validation Cache'));
 
-resolver.define('getCacheStatistics', async (req) => {
+resolver.define('getCacheStatistics', withErrorHandling(async (req) => {
     return await getCacheStatistics();
-});
-
+}, 'Get Cache Statistics'));
 
 // Delivery Lead Validation
-resolver.define('performDeliveryLeadValidation', async (req) => {
-    console.log('ValidAIte - Delivery Lead Validation resolver called');
-    
-    try {
-        const { excelData, pageContext } = req.payload;
-        
-        console.log('Received data:', {
-            excelDataRows: excelData?.length,
-            pageContextKeys: Object.keys(pageContext || {})
-        });
+resolver.define('performDeliveryLeadValidation', withErrorHandling(async (req) => {
+    const { excelData, pageContext } = req.payload;
+    return await performDeliveryLeadValidation(excelData, pageContext);
+}, 'Delivery Lead Validation'));
 
-        if (!excelData || !Array.isArray(excelData) || excelData.length === 0) {
-            return {
-                success: false,
-                error: 'No Excel data provided'
-            };
-        }
-
-        // Perform the simple delivery lead validation (single API call to avoid timeouts)
-        const validationResult = await performSimpleDeliveryLeadValidation(pageContext, excelData);
-        
-        console.log('� Validation result:', {
-            success: validationResult.success,
-            approvalDecision: validationResult.result?.deliveryLeadValidation?.approvalDecision,
-            processType: validationResult.result?.contextAnalysis?.processType
-        });
-
-        return validationResult;
-
-    } catch (error) {
-        console.error('❌ Delivery Lead Validation resolver error:', error);
-        return {
-            success: false,
-            error: error.message || 'Failed to perform delivery lead validation'
-        };
-    }
-});
-
-// Context Analysis (extracted from delivery lead validation)
-resolver.define('analyzeContext', async (req) => {
-    console.log('ValidAIte - Context Analysis resolver called');
-    
-    try {
-        const { excelData, pageContext } = req.payload;
-        
-        console.log('Received data for context analysis:', {
-            excelDataRows: excelData?.length,
-            pageContextKeys: Object.keys(pageContext || {})
-        });
-
-        if (!excelData || !Array.isArray(excelData) || excelData.length === 0) {
-            return {
-                success: false,
-                error: 'No Excel data provided for context analysis'
-            };
-        }
-
-        // Use the existing delivery lead validation service to get context analysis
-        const validationResult = await performSimpleDeliveryLeadValidation(pageContext, excelData);
-        
-        if (!validationResult.success) {
-            return validationResult;
-        }
-
-        // Extract just the context analysis part
-        const contextAnalysis = validationResult.result?.deliveryLeadValidation?.contextAnalysis;
-        
-        if (!contextAnalysis) {
-            return {
-                success: false,
-                error: 'Context analysis not available in validation result'
-            };
-        }
-
-        // Add additional context information from the validation
-        const enrichedContextAnalysis = {
-            ...contextAnalysis,
-            processType: validationResult.result?.deliveryLeadValidation?.processType,
-            confidence: validationResult.result?.deliveryLeadValidation?.confidenceScore,
-            typicalRequiredFields: contextAnalysis.complianceRequirements || [],
-            businessGoals: contextAnalysis.businessGoals || [],
-            keyStakeholders: contextAnalysis.keyStakeholders || [],
-            riskFactors: contextAnalysis.riskFactors || []
-        };
-
-        console.log('✅ Context analysis extracted successfully');
-
-        return {
-            success: true,
-            contextAnalysis: enrichedContextAnalysis
-        };
-
-    } catch (error) {
-        console.error('❌ Context Analysis resolver error:', error);
-        return {
-            success: false,
-            error: error.message || 'Failed to perform context analysis'
-        };
-    }
-});
-
+// Context Analysis
+resolver.define('analyzeContext', withErrorHandling(async (req) => {
+    const { excelData, pageContext } = req.payload;
+    return await analyzeContext(excelData, pageContext);
+}, 'Context Analysis'));
 
 export const handler = resolver.getDefinitions();

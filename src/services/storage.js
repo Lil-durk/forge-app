@@ -12,10 +12,7 @@ import { storage } from '@forge/api';
  * @returns {Object} Success status and file info
  */
 export const storeFileInfo = async (fileId, fileInfo) => {
-    console.log('Storing file info to storage...');
     await storage.set(`file_upload_${fileId}`, fileInfo);
-    console.log('File info stored successfully');
-    
     return { success: true, fileInfo };
 };
 
@@ -34,22 +31,16 @@ export const getFileInfo = async (fileId) => {
  * @returns {Array} Updated recent uploads list
  */
 export const addToRecentUploads = async (fileInfo) => {
-    console.log('Getting recent uploads from storage...');
     const recentUploads = await storage.get('recent_uploads') || [];
-    console.log('Current recent uploads count:', recentUploads.length);
     
     recentUploads.unshift(fileInfo);
     
     // Keep only last 10 uploads
     if (recentUploads.length > 10) {
-        console.log('Trimming uploads list to 10 items');
         recentUploads.splice(10);
     }
     
-    console.log('Updating recent uploads in storage...');
     await storage.set('recent_uploads', recentUploads);
-    console.log('Recent uploads updated successfully');
-    
     return recentUploads;
 };
 
@@ -58,12 +49,8 @@ export const addToRecentUploads = async (fileInfo) => {
  * @returns {Object} Success status and uploads array
  */
 export const getRecentUploads = async () => {
-    console.log('=== GET RECENT UPLOADS CALLED ===');
-    
     try {
-        console.log('Fetching recent uploads from storage...');
         const recentUploads = await storage.get('recent_uploads') || [];
-        console.log('Retrieved uploads count:', recentUploads.length);
         
         return {
             success: true,
@@ -122,8 +109,6 @@ export const updateFileValidationStatus = async (fileId, validationResult) => {
  * @returns {Object} Success status and file info
  */
 export const monitorFileUpload = async (uploadData) => {
-    console.log('monitorFileUpload called with:', uploadData);
-    
     try {
         const { fileName, fileId, uploadTime, context } = uploadData;
         

@@ -21,12 +21,12 @@ const DISPLAY_CRITERIA = {
     '9',
     '11'
   ],
-  showOnAllForms: true, // Set to true to bypass all restrictions
+  showOnAllForms: false, // Set to true to bypass all restrictions
 };
 
 export const useConditionalDisplay = () => {
   const { pageContext, requestType, loading, error } = usePageContext();
-  const [shouldDisplay, setShouldDisplay] = useState(false);
+  const [displayMode, setDisplayMode] = useState('minimal'); // 'full' or 'minimal'
   const [displayReason, setDisplayReason] = useState('');
   const [isEvaluating, setIsEvaluating] = useState(true);
 
@@ -40,23 +40,38 @@ export const useConditionalDisplay = () => {
           return;
         }
         
-        // If there's an error getting context, default to not showing
+        // If there's an error getting context, default to minimal display
         if (error) {
-          setShouldDisplay(false);
+          setDisplayMode('minimal');
           setDisplayReason('Error loading page context');
           return;
         }
         
         // If configured to show on all forms (useful for testing)
         if (DISPLAY_CRITERIA.showOnAllForms) {
-          setShouldDisplay(true);
+          setDisplayMode('full');
           setDisplayReason('Configured to show on all forms');
           return;
         }
         
+        // Extract request type ID from URL as fallback
+        let urlRequestTypeId = null;
+        try {
+          const currentUrl = window.location.href;
+          const urlMatch = currentUrl.match(/\/create\/(\d+)/);
+          if (urlMatch) {
+            urlRequestTypeId = urlMatch[1];
+          }
+        } catch (e) {
+          console.log('Could not extract request type ID from URL:', e);
+        }
+
         console.log('🔍 ValidAIte - Evaluating display conditions for:', {
           requestType,
-          pageContext
+          pageContext,
+          urlRequestTypeId,
+          contextRequestTypeId: pageContext?.extension?.requestType?.id,
+          allowedIds: DISPLAY_CRITERIA.allowedRequestTypeIds
         });
         
         // Check against allowed request type names
@@ -66,23 +81,39 @@ export const useConditionalDisplay = () => {
           );
           
           if (isAllowedByName) {
-            setShouldDisplay(true);
+            setDisplayMode('full');
             setDisplayReason(`Request type "${requestType}" is in allowed list`);
             return;
           }
         }
         
-        // Check against allowed request type IDs
-        if (DISPLAY_CRITERIA.allowedRequestTypeIds && DISPLAY_CRITERIA.allowedRequestTypeIds.length > 0 && pageContext?.extension?.requestType?.id) {
-          const isAllowedById = DISPLAY_CRITERIA.allowedRequestTypeIds.includes(
-            pageContext.extension.requestType.id
-          );
+        // Check against allowed request type IDs (try both context and URL)
+        if (DISPLAY_CRITERIA.allowedRequestTypeIds && DISPLAY_CRITERIA.allowedRequestTypeIds.length > 0) {
+          // The actual path is extension.request.typeId (as number)
+          const contextTypeId = pageContext?.extension?.request?.typeId;
+          const contextIdString = contextTypeId ? String(contextTypeId) : null;
+          const urlId = urlRequestTypeId;
           
-          if (isAllowedById) {
-            setShouldDisplay(true);
-            setDisplayReason(`Request type ID "${pageContext.extension.requestType.id}" is in allowed list`);
+          // Check context ID first (convert number to string for comparison)
+          if (contextIdString && DISPLAY_CRITERIA.allowedRequestTypeIds.includes(contextIdString)) {
+            setDisplayMode('full');
+            setDisplayReason(`Request type ID "${contextIdString}" (from context.extension.request.typeId) is in allowed list`);
             return;
           }
+          
+          // Check URL ID as fallback
+          if (urlId && DISPLAY_CRITERIA.allowedRequestTypeIds.includes(urlId)) {
+            setDisplayMode('full');
+            setDisplayReason(`Request type ID "${urlId}" (from URL) is in allowed list`);
+            return;
+          }
+          
+          console.log('🚫 ValidAIte - No matching request type ID found:', {
+            contextTypeId,
+            contextIdString,
+            urlId,
+            allowedIds: DISPLAY_CRITERIA.allowedRequestTypeIds
+          });
         }
         
         // Check against allowed project keys
@@ -92,7 +123,7 @@ export const useConditionalDisplay = () => {
           );
           
           if (isAllowedByProject) {
-            setShouldDisplay(true);
+            setDisplayMode('full');
             setDisplayReason(`Project key "${pageContext.extension.project.key}" is in allowed list`);
             return;
           }
@@ -105,18 +136,18 @@ export const useConditionalDisplay = () => {
           console.log('🔧 ValidAIte - Custom field check not yet implemented');
         }
         
-        // If no conditions matched, don't display
-        setShouldDisplay(false);
-        setDisplayReason('Current request form does not match display criteria');
+        // If no conditions matched, show minimal display
+        setDisplayMode('minimal');
+        setDisplayReason('Current request form does not match display criteria - showing minimal view');
         
-        console.log('🚫 ValidAIte - App will not be displayed:', {
+        console.log('🔄 ValidAIte - App will show minimal view:', {
           requestType,
           reason: 'No matching display criteria'
         });
         
       } catch (evaluationError) {
         console.error('❌ ValidAIte - Error evaluating display conditions:', evaluationError);
-        setShouldDisplay(false);
+        setDisplayMode('minimal');
         setDisplayReason('Error evaluating display conditions');
       } finally {
         setIsEvaluating(false);
@@ -127,7 +158,8 @@ export const useConditionalDisplay = () => {
   }, [pageContext, requestType, loading, error]);
 
   return {
-    shouldDisplay,
+    displayMode,
+    shouldDisplay: displayMode === 'full', // Backward compatibility
     displayReason,
     isEvaluating,
     pageContext,
@@ -137,9 +169,9 @@ export const useConditionalDisplay = () => {
     getDisplayCriteria: () => DISPLAY_CRITERIA,
     
     // Function to temporarily override display (useful for testing)
-    forceDisplay: (force = true) => {
-      setShouldDisplay(force);
-      setDisplayReason(force ? 'Forced display for testing' : 'Force display disabled');
+    forceDisplay: (mode = 'full') => {
+      setDisplayMode(mode);
+      setDisplayReason(`Forced display mode: ${mode}`);
     }
   };
 };

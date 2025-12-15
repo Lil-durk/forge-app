@@ -27,9 +27,6 @@ export const useAppState = () => {
   const [recentUploads, setRecentUploads] = useState([]);
   const [isMonitoring, setIsMonitoring] = useState(true);
   
-  // API testing state
-  const [apiTestResult, setApiTestResult] = useState(null);
-  const [testingApi, setTestingApi] = useState(false);
 
   // Reset validation state when new file is processed
   const resetValidationState = () => {
@@ -74,12 +71,6 @@ export const useAppState = () => {
     setRecentUploads,
     isMonitoring,
     setIsMonitoring,
-    
-    // API testing state
-    apiTestResult,
-    setApiTestResult,
-    testingApi,
-    setTestingApi,
     
     // Utility functions
     resetValidationState
