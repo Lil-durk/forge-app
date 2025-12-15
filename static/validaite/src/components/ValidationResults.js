@@ -53,7 +53,7 @@ const ValidationResults = ({ validationResult, isUsingCachedResult = false }) =>
         <h3>Smart Validation Results</h3>
         {isUsingCachedResult && (
           <div className="cached-indicator">
-            <span className="cache-badge">⚡ Cached Result</span>
+            <span className="cache-badge">Cached Result</span>
             <span className="cache-description">Same file content detected - using previous validation</span>
           </div>
         )}

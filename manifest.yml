@@ -30,6 +30,8 @@ permissions:
     - storage:app
     - read:jira-work
     - read:attachment:jira
+    - read:servicedesk-request
+    - read:jira-user
   external:
     fetch:
       backend:

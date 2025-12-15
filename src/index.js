@@ -10,11 +10,13 @@ import { getIssueAttachments, processExcelAttachment } from './services/jira.js'
 import { analyzeDataPurpose, generateCustomRequirements, validateWithCustomRequirements } from './services/requirementsWizard.js';
 import { checkFileContentChange, cacheValidationResult, getCachedValidationResult, clearValidationCache, getCacheStatistics } from './services/fileContentCache.js';
 import { testApiKeyConfiguration } from './resolvers/apiTest.js';
+import { performSimpleDeliveryLeadValidation } from './services/ai/simpleDeliveryLeadValidator.js';
 
 const resolver = new Resolver();
 
 // API Configuration
 resolver.define('testApiKeyConfiguration', testApiKeyConfiguration);
+
 
 
 // Basic Validation
@@ -91,6 +93,109 @@ resolver.define('clearValidationCache', async (req) => {
 
 resolver.define('getCacheStatistics', async (req) => {
     return await getCacheStatistics();
+});
+
+
+// Delivery Lead Validation
+resolver.define('performDeliveryLeadValidation', async (req) => {
+    console.log('ValidAIte - Delivery Lead Validation resolver called');
+    
+    try {
+        const { excelData, pageContext } = req.payload;
+        
+        console.log('Received data:', {
+            excelDataRows: excelData?.length,
+            pageContextKeys: Object.keys(pageContext || {})
+        });
+
+        if (!excelData || !Array.isArray(excelData) || excelData.length === 0) {
+            return {
+                success: false,
+                error: 'No Excel data provided'
+            };
+        }
+
+        // Perform the simple delivery lead validation (single API call to avoid timeouts)
+        const validationResult = await performSimpleDeliveryLeadValidation(pageContext, excelData);
+        
+        console.log('� Validation result:', {
+            success: validationResult.success,
+            approvalDecision: validationResult.result?.deliveryLeadValidation?.approvalDecision,
+            processType: validationResult.result?.contextAnalysis?.processType
+        });
+
+        return validationResult;
+
+    } catch (error) {
+        console.error('❌ Delivery Lead Validation resolver error:', error);
+        return {
+            success: false,
+            error: error.message || 'Failed to perform delivery lead validation'
+        };
+    }
+});
+
+// Context Analysis (extracted from delivery lead validation)
+resolver.define('analyzeContext', async (req) => {
+    console.log('ValidAIte - Context Analysis resolver called');
+    
+    try {
+        const { excelData, pageContext } = req.payload;
+        
+        console.log('Received data for context analysis:', {
+            excelDataRows: excelData?.length,
+            pageContextKeys: Object.keys(pageContext || {})
+        });
+
+        if (!excelData || !Array.isArray(excelData) || excelData.length === 0) {
+            return {
+                success: false,
+                error: 'No Excel data provided for context analysis'
+            };
+        }
+
+        // Use the existing delivery lead validation service to get context analysis
+        const validationResult = await performSimpleDeliveryLeadValidation(pageContext, excelData);
+        
+        if (!validationResult.success) {
+            return validationResult;
+        }
+
+        // Extract just the context analysis part
+        const contextAnalysis = validationResult.result?.deliveryLeadValidation?.contextAnalysis;
+        
+        if (!contextAnalysis) {
+            return {
+                success: false,
+                error: 'Context analysis not available in validation result'
+            };
+        }
+
+        // Add additional context information from the validation
+        const enrichedContextAnalysis = {
+            ...contextAnalysis,
+            processType: validationResult.result?.deliveryLeadValidation?.processType,
+            confidence: validationResult.result?.deliveryLeadValidation?.confidenceScore,
+            typicalRequiredFields: contextAnalysis.complianceRequirements || [],
+            businessGoals: contextAnalysis.businessGoals || [],
+            keyStakeholders: contextAnalysis.keyStakeholders || [],
+            riskFactors: contextAnalysis.riskFactors || []
+        };
+
+        console.log('✅ Context analysis extracted successfully');
+
+        return {
+            success: true,
+            contextAnalysis: enrichedContextAnalysis
+        };
+
+    } catch (error) {
+        console.error('❌ Context Analysis resolver error:', error);
+        return {
+            success: false,
+            error: error.message || 'Failed to perform context analysis'
+        };
+    }
 });
 
 

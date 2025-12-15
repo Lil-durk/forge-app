@@ -210,7 +210,7 @@ const RequirementsWizard = ({
                 onClick={getAiSuggestion}
                 disabled={!excelData}
               >
-                🤖 Get AI Suggestion
+                Get AI Suggestion
               </button>
             )}
 
@@ -301,7 +301,7 @@ const RequirementsWizard = ({
                 Use Standard Validation
               </button>
               <button className="btn-primary" onClick={applyRequirements}>
-                Apply Requirements ✨
+                Apply Requirements
               </button>
             </div>
           </div>
