@@ -74,18 +74,6 @@ export const useConditionalDisplay = () => {
           allowedIds: DISPLAY_CRITERIA.allowedRequestTypeIds
         });
         
-        // Check against allowed request type names
-        if (DISPLAY_CRITERIA.allowedRequestTypeNames && DISPLAY_CRITERIA.allowedRequestTypeNames.length > 0) {
-          const isAllowedByName = DISPLAY_CRITERIA.allowedRequestTypeNames.some(
-            allowedName => requestType && requestType.toLowerCase().includes(allowedName.toLowerCase())
-          );
-          
-          if (isAllowedByName) {
-            setDisplayMode('full');
-            setDisplayReason(`Request type "${requestType}" is in allowed list`);
-            return;
-          }
-        }
         
         // Check against allowed request type IDs (try both context and URL)
         if (DISPLAY_CRITERIA.allowedRequestTypeIds && DISPLAY_CRITERIA.allowedRequestTypeIds.length > 0) {
@@ -108,7 +96,7 @@ export const useConditionalDisplay = () => {
             return;
           }
           
-          console.log('🚫 ValidAIte - No matching request type ID found:', {
+          console.log('ValidAIte - No matching request type ID found:', {
             contextTypeId,
             contextIdString,
             urlId,

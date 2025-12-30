@@ -4,8 +4,9 @@
  */
 
 import React, { useState } from 'react';
+import EmptyCellAnalysis from './EmptyCellAnalysis';
 
-const ValidationResults = ({ validationResult, isUsingCachedResult = false }) => {
+const ValidationResults = ({ validationResult, isUsingCachedResult = false, excelData, fileName }) => {
   const [activeTab, setActiveTab] = useState('overview');
 
   if (!validationResult) return null;
@@ -123,6 +124,14 @@ const ValidationResults = ({ validationResult, isUsingCachedResult = false }) =>
         >
           Issues ({validation.issues?.length || 0})
         </button>
+        {excelData && excelData.length > 0 && (
+          <button 
+            className={`tab-button ${activeTab === 'emptyCells' ? 'active' : ''}`}
+            onClick={() => setActiveTab('emptyCells')}
+          >
+            🔍 Empty Cells
+          </button>
+        )}
       </div>
 
       <div className="tab-content">
@@ -245,6 +254,19 @@ const ValidationResults = ({ validationResult, isUsingCachedResult = false }) =>
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Empty Cell Analysis Tab */}
+        {activeTab === 'emptyCells' && excelData && (
+          <div className="empty-cells-tab">
+            <EmptyCellAnalysis 
+              excelData={excelData}
+              fileName={fileName}
+              onAnalysisComplete={(analysis) => {
+                console.log('Empty cell analysis completed:', analysis);
+              }}
+            />
           </div>
         )}
 

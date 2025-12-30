@@ -23,7 +23,7 @@ const withErrorHandling = (handler, operationName) => async (req) => {
     try {
         return await handler(req);
     } catch (error) {
-        console.error(`❌ ${operationName} resolver error:`, error);
+        console.error(`${operationName} resolver error:`, error);
         return {
             success: false,
             error: error.message || `Failed to ${operationName.toLowerCase()}`

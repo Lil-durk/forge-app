@@ -157,6 +157,8 @@ function App() {
         <ValidationResults 
           validationResult={state.validationResult} 
           isUsingCachedResult={state.isUsingCachedResult}
+          excelData={state.excelData}
+          fileName={state.fileName}
         />
 
         {/* Clear Cache Button - Always visible for developers */}

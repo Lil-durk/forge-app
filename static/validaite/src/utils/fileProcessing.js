@@ -47,7 +47,10 @@ export const processUploadedFile = async (file, {
       const sheetName = workbook.SheetNames[0];
       
       const worksheet = workbook.Sheets[sheetName];
-      const jsonData = XLSX.utils.sheet_to_json(worksheet);
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, {
+        defval: '', // Default value for empty cells - preserves them as empty strings
+        blankrows: true // Include blank rows in the output
+      });
       
       console.log('Excel parsed successfully:', jsonData.length, 'rows');
       setExcelData(jsonData);

@@ -31,7 +31,7 @@ export const openaiClient = openai;
 
 export const OPENAI_CONFIG = {
     BASE_URL: "https://api-v2.bonzai.iodigital.com/v1",
-    MODEL: "claude-3-7-sonnet",
+    MODEL: "claude-4-5-sonnet",
     TEST_MODEL: "gpt-3.5-turbo",
     MAX_TOKENS: 2000,
     TEMPERATURE: 0.1
