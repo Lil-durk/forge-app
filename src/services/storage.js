@@ -1,44 +1,25 @@
-/**
- * File storage and management service
- * Handles file upload monitoring, storage operations, and recent uploads tracking
- */
-
 import { storage } from '@forge/api';
 import { createLogger } from '../utils/logger.js';
 
 const log = createLogger('StorageService');
 
-/**
- * Store file upload information in Forge storage
- * @param {string} fileId - Unique file identifier
- * @param {Object} fileInfo - File information object
- * @returns {Object} Success status and file info
- */
 export const storeFileInfo = async (fileId, fileInfo) => {
     await storage.set(`file_upload_${fileId}`, fileInfo);
     return { success: true, fileInfo };
 };
 
-/**
- * Get file information from storage
- * @param {string} fileId - Unique file identifier
- * @returns {Object|null} File information or null if not found
- */
 export const getFileInfo = async (fileId) => {
     return await storage.get(`file_upload_${fileId}`);
 };
 
-/**
- * Add file to recent uploads list and maintain list size
- * @param {Object} fileInfo - File information object
- * @returns {Array} Updated recent uploads list
- */
 export const addToRecentUploads = async (fileInfo) => {
     const recentUploads = await storage.get('recent_uploads') || [];
+<<<<<<< HEAD
     
+=======
+>>>>>>> main
     recentUploads.unshift(fileInfo);
     
-    // Keep only last 10 uploads
     if (recentUploads.length > 10) {
         recentUploads.splice(10);
     }
@@ -47,24 +28,26 @@ export const addToRecentUploads = async (fileInfo) => {
     return recentUploads;
 };
 
-/**
- * Get recent file uploads from storage
- * @returns {Object} Success status and uploads array
- */
 export const getRecentUploads = async () => {
     try {
         const recentUploads = await storage.get('recent_uploads') || [];
+<<<<<<< HEAD
         
         log.debug('getRecentUploads', 'Retrieved recent uploads', { 
             uploadsCount: recentUploads.length 
         });
         
+=======
+>>>>>>> main
         return {
             success: true,
             uploads: recentUploads
         };
     } catch (error) {
+<<<<<<< HEAD
         log.error('getRecentUploads', 'Failed to retrieve recent uploads', error);
+=======
+>>>>>>> main
         return {
             success: false,
             error: error.message
@@ -72,12 +55,6 @@ export const getRecentUploads = async () => {
     }
 };
 
-/**
- * Update file validation status in storage
- * @param {string} fileId - Unique file identifier
- * @param {Object} validationResult - Validation result object
- * @returns {Object} Success status and updated file info
- */
 export const updateFileValidationStatus = async (fileId, validationResult) => {
     try {
         const fileInfo = await getFileInfo(fileId);
@@ -88,7 +65,6 @@ export const updateFileValidationStatus = async (fileId, validationResult) => {
             
             await storage.set(`file_upload_${fileId}`, fileInfo);
             
-            // Update in recent uploads list
             const recentUploads = await storage.get('recent_uploads') || [];
             const index = recentUploads.findIndex(upload => upload.fileId === fileId);
             if (index !== -1) {
@@ -110,7 +86,10 @@ export const updateFileValidationStatus = async (fileId, validationResult) => {
             fileInfo
         };
     } catch (error) {
+<<<<<<< HEAD
         log.error('updateFileValidationStatus', 'Failed to update file validation status', error, { fileId });
+=======
+>>>>>>> main
         return {
             success: false,
             error: error.message
@@ -118,16 +97,10 @@ export const updateFileValidationStatus = async (fileId, validationResult) => {
     }
 };
 
-/**
- * Monitor and process file upload
- * @param {Object} uploadData - Upload data containing fileName, fileId, uploadTime, context
- * @returns {Object} Success status and file info
- */
 export const monitorFileUpload = async (uploadData) => {
     try {
         const { fileName, fileId, uploadTime, context } = uploadData;
         
-        // Check if it's an Excel file
         if (!fileName || !fileName.match(/\.(xlsx|xls)$/i)) {
             log.debug('monitorFileUpload', 'File upload skipped - not an Excel file', { fileName });
             return {
@@ -136,7 +109,6 @@ export const monitorFileUpload = async (uploadData) => {
             };
         }
         
-        // Create file upload information object
         const fileInfo = {
             fileName,
             fileId,
@@ -146,7 +118,6 @@ export const monitorFileUpload = async (uploadData) => {
             validationStatus: 'pending'
         };
         
-        // Store file info and add to recent uploads
         await storeFileInfo(fileId, fileInfo);
         await addToRecentUploads(fileInfo);
         
@@ -163,10 +134,13 @@ export const monitorFileUpload = async (uploadData) => {
         };
         
     } catch (error) {
+<<<<<<< HEAD
         log.error('monitorFileUpload', 'Failed to monitor file upload', error, {
             fileName: uploadData?.fileName,
             fileId: uploadData?.fileId
         });
+=======
+>>>>>>> main
         return {
             success: false,
             error: error.message

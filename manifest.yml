@@ -5,9 +5,55 @@ modules:
       resolver:
         function: resolver
       title: ValidAIte
+  trigger:
+    - key: issue-created-trigger
+      function: issueCreatedHandler
+      events:
+        - avi:jira:created:issue
+  webtrigger:
+    - key: file-upload-trigger
+      function: fileUploadTrigger
+      response:
+        type: dynamic
+    - key: create-issue-trigger
+      function: createIssueTrigger
+      response:
+        type: dynamic
+    - key: pending-files-trigger
+      function: pendingFilesTrigger
+      response:
+        type: dynamic
+    - key: attach-file-trigger
+      function: attachFileTrigger
+      response:
+        type: dynamic
+    - key: create-issue-downloadable-trigger
+      function: createDownloadTrigger
+      response:
+        type: dynamic
+    - key: create-issue-analysis-trigger
+      function: createAnalysisTrigger
+      response:
+        type: dynamic
   function:
     - key: resolver
       handler: index.handler
+    - key: issueCreatedHandler
+      handler: index.issueCreatedHandler
+    - key: fileUploadTrigger
+      handler: index.fileUploadTrigger
+    - key: createIssueTrigger
+      handler: index.createIssueTrigger
+    - key: pendingFilesTrigger
+      handler: index.pendingFilesTrigger
+    - key: attachFileTrigger
+      handler: index.attachFileTrigger
+    - key: createDownloadTrigger
+      handler: index.createIssueWithDownloadableFilesTrigger
+    - key: downloadFileHandler
+      handler: index.downloadFileHandler
+    - key: createAnalysisTrigger
+      handler: index.createIssueWithAnalysisReportTrigger
 
 resources:
   - key: main
@@ -30,8 +76,13 @@ permissions:
     - storage:app
     - read:jira-work
     - read:attachment:jira
+<<<<<<< HEAD
     - read:servicedesk-request
     - read:jira-user
+=======
+    - write:jira-work
+    - write:attachment:jira
+>>>>>>> main
   external:
     fetch:
       backend:
@@ -40,4 +91,3 @@ permissions:
         - address: https://api-v2.bonzai.iodigital.com/*
         - address: https://*.bonzai.iodigital.com
         - address: https://bonzai.iodigital.com
-        - address: https://api.openai.com

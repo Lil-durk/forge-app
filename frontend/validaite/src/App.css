@@ -11,12 +11,3 @@
 @import './styles/components/alternative-scoring.css';
 
 @import './styles/utilities/responsive.css';
-
-/* NOTE: The following large sections should be extracted to separate files:
-   - Historical Analysis (500+ lines)
-   - Requirements Wizard (600+ lines)
-   
-   For now they remain here but should be moved to:
-   - ./styles/components/historical-analysis.css
-   - ./styles/components/requirements-wizard.css
-*/
