@@ -11,7 +11,7 @@ modules:
 
 resources:
   - key: main
-    path: static/validaite/build
+    path: frontend/validaite/build
     tunnel:
       port: 3000
 

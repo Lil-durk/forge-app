@@ -11,11 +11,17 @@ import {
 } from './fileContentCache.js';
 import { createLogger } from '../utils/logger.js';
 import { validateExcelData as validateExcelDataInput, validateValidationRules, sanitizeString } from '../utils/inputValidation.js';
+import { API_CONFIG, VALIDATION_CONFIG, ERROR_MESSAGES } from '../config/constants.js';
+import { 
+    AppError, 
+    ERROR_CODES, 
+    handleError, 
+    createErrorResponse, 
+    createSuccessResponse,
+    validateRequiredParams 
+} from '../utils/errorHandler.js';
 
 const log = createLogger('ValidationService');
-
-// Request timeout in milliseconds (30 seconds)
-const REQUEST_TIMEOUT = 30000;
 
 /**
  * Makes an OpenAI API call for validation with timeout and proper error handling
@@ -33,7 +39,7 @@ export const callOpenAIValidation = async (prompt) => {
     try {
         // Create timeout promise
         const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('Request timeout')), REQUEST_TIMEOUT);
+            setTimeout(() => reject(new Error('Request timeout')), API_CONFIG.REQUEST_TIMEOUT);
         });
 
         // Create API call promise
@@ -187,16 +193,22 @@ Please return a JSON response with this exact structure:
         const responseContent = completion.choices[0].message.content;
         const validationResult = parseValidationResponse(responseContent);
 
-        // Add historical insights (mock data for now)
-        const historicalInsights = {
-            totalHistoricalTickets: Math.floor(Math.random() * 1000) + 100,
-            averageResolutionTime: `${Math.floor(Math.random() * 48) + 1} hours`,
-            commonIssuePatterns: [
-                "Data format inconsistencies",
-                "Duplicate entries",
-                "Invalid data types"
-            ]
-        };
+        // Add historical insights if available
+        let historicalInsights = null;
+        if (VALIDATION_CONFIG.HISTORICAL_INSIGHTS.ENABLE_MOCK) {
+            historicalInsights = {
+                totalHistoricalTickets: Math.floor(Math.random() * 1000) + 100,
+                averageResolutionTime: `${Math.floor(Math.random() * 48) + 1} hours`,
+                commonIssuePatterns: [
+                    "Data format inconsistencies",
+                    "Duplicate entries",
+                    "Invalid data types"
+                ]
+            };
+        } else if (VALIDATION_CONFIG.HISTORICAL_INSIGHTS.API_ENDPOINT) {
+            // TODO: Implement real historical insights API call
+            log.info('validateExcelData', 'Historical insights API not yet implemented');
+        }
 
         const result = {
             success: true,
@@ -223,15 +235,18 @@ Please return a JSON response with this exact structure:
         return result;
 
     } catch (error) {
-        log.error('validateExcelData', 'Validation failed', error, {
+        const processedError = handleError(error, 'validateExcelData', {
             dataRows: excelData?.length || 0,
             hasRules: !!validationRules
         });
-        return {
-            success: false,
-            error: error.message,
-            validation: null,
-            historicalInsights: null
-        };
+        
+        return createErrorResponse(
+            processedError.message,
+            processedError.code,
+            {
+                validation: null,
+                historicalInsights: null
+            }
+        );
     }
 };

@@ -5,6 +5,7 @@
 
 import { openaiClient, OPENAI_CONFIG } from '../../config/openai.js';
 import { parseDataPurposeResponse } from '../ai/responseParser.js';
+import aiCache from '../ai/aiCache.js';
 
 /**
  * Analyzes the purpose and context of uploaded Excel data
@@ -16,6 +17,13 @@ export const analyzeDataPurpose = async (excelData, fileName) => {
   try {
     if (!openaiClient) {
       throw new Error('OpenAI client not initialized');
+    }
+
+    // Check cache first
+    const cacheContext = { fileName, operation: 'dataPurposeAnalysis' };
+    const cachedResult = aiCache.get('dataPurpose', excelData, cacheContext);
+    if (cachedResult) {
+      return cachedResult;
     }
 
     const prompt = `
@@ -58,6 +66,12 @@ Return a JSON response with this structure:
     });
 
     const result = parseDataPurposeResponse(completion.choices[0].message.content);
+    
+    // Cache the successful result
+    if (result.success !== false) {
+      aiCache.set('dataPurpose', excelData, cacheContext, result);
+    }
+    
     return result;
   } catch (error) {
     console.error('Error analyzing data purpose:', error);
