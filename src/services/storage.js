@@ -14,10 +14,6 @@ export const getFileInfo = async (fileId) => {
 
 export const addToRecentUploads = async (fileInfo) => {
     const recentUploads = await storage.get('recent_uploads') || [];
-<<<<<<< HEAD
-    
-=======
->>>>>>> main
     recentUploads.unshift(fileInfo);
     
     if (recentUploads.length > 10) {
@@ -31,23 +27,11 @@ export const addToRecentUploads = async (fileInfo) => {
 export const getRecentUploads = async () => {
     try {
         const recentUploads = await storage.get('recent_uploads') || [];
-<<<<<<< HEAD
-        
-        log.debug('getRecentUploads', 'Retrieved recent uploads', { 
-            uploadsCount: recentUploads.length 
-        });
-        
-=======
->>>>>>> main
         return {
             success: true,
             uploads: recentUploads
         };
     } catch (error) {
-<<<<<<< HEAD
-        log.error('getRecentUploads', 'Failed to retrieve recent uploads', error);
-=======
->>>>>>> main
         return {
             success: false,
             error: error.message
@@ -86,10 +70,6 @@ export const updateFileValidationStatus = async (fileId, validationResult) => {
             fileInfo
         };
     } catch (error) {
-<<<<<<< HEAD
-        log.error('updateFileValidationStatus', 'Failed to update file validation status', error, { fileId });
-=======
->>>>>>> main
         return {
             success: false,
             error: error.message
@@ -134,13 +114,6 @@ export const monitorFileUpload = async (uploadData) => {
         };
         
     } catch (error) {
-<<<<<<< HEAD
-        log.error('monitorFileUpload', 'Failed to monitor file upload', error, {
-            fileName: uploadData?.fileName,
-            fileId: uploadData?.fileId
-        });
-=======
->>>>>>> main
         return {
             success: false,
             error: error.message
