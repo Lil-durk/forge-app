@@ -1,233 +1,372 @@
-# ValidAIte - Excel Data Validator
+# ValidAIte - Intelligent Excel Data Validator
 
-A Forge app for Jira Service Management that provides AI-powered Excel file validation using OpenAI. Users can upload Excel files and receive intelligent validation feedback with detailed analysis and recommendations.
+A comprehensive Forge app for Jira Service Management that provides AI-powered Excel file validation using OpenAI. Features intelligent data analysis, custom validation requirements generation, caching for performance optimization, and seamless Jira integration.
 
-## Features
+## 🚀 Features
 
-- **Excel File Upload**: Support for .xlsx and .xls files
-- **AI-Powered Validation**: Uses OpenAI GPT-3.5-turbo for intelligent data analysis
+### Core Validation
+- **Excel File Upload**: Support for .xlsx and .xls files with drag-and-drop interface
+- **AI-Powered Validation**: Advanced OpenAI GPT integration for intelligent data analysis
 - **Real-time Processing**: Automatic validation triggered upon file upload
-- **Custom Validation Rules**: Users can specify custom validation criteria
-- **Comprehensive Reporting**: Detailed validation results with:
-  - Overall data quality score (0-100)
-  - Issue categorization (errors, warnings, info)
-  - Field-specific feedback
-  - Row-level issue identification
-  - Actionable recommendations
-- **Data Preview**: Visual table showing first 5 rows of uploaded data
-- **Responsive Design**: Modern, mobile-friendly interface
+- **Custom Validation Rules**: AI-generated custom validation criteria based on data purpose
+- **Comprehensive Reporting**: Detailed validation results with scoring and recommendations
 
-## Architecture
+### Advanced Features
+- **Requirements Wizard**: Multi-step wizard for generating tailored validation requirements
+- **Intelligent Caching**: Performance optimization through file content-based caching
+- **Jira Integration**: Direct attachment processing from Jira issues
+- **Data Preview**: Visual table showing sample data with responsive design
+- **File Management**: Upload monitoring and validation status tracking
+- **Alternative Scoring**: Multiple validation approaches for comprehensive analysis
+
+### User Experience
+- **Modern UI**: Tailwind CSS with responsive design and animations
+- **Component-Based Architecture**: Modular React components for maintainability
+- **Progressive Enhancement**: Step-by-step validation process with clear feedback
+- **Error Handling**: Comprehensive error management with detailed logging
+
+## 🏗️ Architecture
 
 ### Backend (Forge Resolver)
 - **Framework**: Atlassian Forge with Node.js 22.x
-- **AI Integration**: OpenAI API for data validation
-- **Memory**: 256MB ARM64 runtime
-- **Resolver Functions**:
-  - `validateExcelData`: Main validation function using OpenAI
+- **Runtime**: 256MB ARM64 for optimal performance
+- **AI Integration**: OpenAI API v6.9.1 for advanced data validation
+- **Caching Layer**: Intelligent content-based caching system
+- **Logging**: Comprehensive logging system with structured output
+
+#### Key Services
+- `validation.js` - Core Excel data validation logic
+- `requirementsWizard.js` - AI-powered requirements generation
+- `fileContentCache.js` - Performance-optimized caching
+- `jira.js` - Jira Service Management integration
+- `storage.js` - File upload and status management
+- `ai/` - AI services (prompt building, response parsing, caching)
+- `requirements/` - Custom validation and data analysis
 
 ### Frontend (React App)
-- **Framework**: React 18.2.0
-- **Excel Processing**: SheetJS (xlsx) library
-- **Styling**: Custom CSS with modern gradients and animations
-- **File Handling**: FileReader API for client-side Excel parsing
-- **UI Components**: 
-  - File upload with drag-and-drop styling
-  - Data preview table
-  - Validation results dashboard
-  - Issue categorization and scoring
+- **Framework**: React 18.2.0 with modern hooks
+- **Styling**: Tailwind CSS v3.4.18 with custom animations
+- **Excel Processing**: SheetJS (xlsx) v0.18.5 for client-side parsing
+- **UI Components**: Lucide React icons with variance authority
+- **Build Tool**: React Scripts 5.0.1
 
-## Installation
+#### Key Components
+- `RequirementsWizard.js` - Multi-step validation setup
+- `FileAttachmentManager.js` - Advanced file handling
+- `ValidationResults.js` - Comprehensive results display
+- `JiraIntegration.js` - Seamless Jira connectivity
+- `PostCreationAttachment.js` - Post-validation file management
+- `wizard/` - Step-by-step wizard components
 
-1. **Prerequisites**:
-   - Node.js 18+ 
-   - Atlassian Forge CLI
-   - OpenAI API key
+## 🛠️ Installation
 
-2. **Setup**:
+### Prerequisites
+- **Node.js**: 18+ (22.x recommended)
+- **Atlassian Forge CLI**: Latest version
+- **OpenAI API Key**: From platform.openai.com
+- **Jira Service Management**: Admin access for installation
+
+### Setup Process
+
+1. **Clone and Install Dependencies**:
    ```bash
-   # Install dependencies
+   # Clone repository
+   git clone <repository-url>
+   cd forge-app
+   
+   # Install backend dependencies
    npm install
-   cd static/validaite && npm install
    
-   # Set OpenAI API key in .env file (see API Key Setup below)
-   # Copy .env file and add your OpenAI API key
+   # Install frontend dependencies
+   cd frontend/validaite
+   npm install
+   cd ../..
+   ```
+
+2. **Environment Configuration**:
+   ```bash
+   # Set OpenAI API key (required)
+   forge variables set OPENAI_API_KEY your-openai-api-key-here
    
-   # Build the React app
+   # Verify configuration
+   forge variables list
+   ```
+
+3. **Build and Deploy**:
+   ```bash
+   # Build React frontend
    npm run build
    
    # Deploy to Forge
    forge deploy
+   
+   # Install in your Jira instance
    forge install
    ```
 
-3. **API Key Setup**:
-   - Get your OpenAI API key from: https://platform.openai.com/api-keys
-   - Set the environment variable using Forge CLI:
-     ```bash
-     forge variables set OPENAI_API_KEY your-actual-openai-api-key
-     ```
-   - Example: `forge variables set OPENAI_API_KEY sk-proj-abcd1234efgh5678ijkl9012mnop3456qrst7890uvwx1234yz567890ab`
-   - Verify it's set: `forge variables list`
+4. **Development Setup** (Optional):
+   ```bash
+   # Start local development server
+   cd frontend/validaite
+   npm start
+   
+   # In another terminal, start Forge tunnel
+   forge tunnel
+   ```
 
-4. **Configuration**:
-   - The API key from `.env` will be automatically used by the Forge app
-   - Configure the app in your Jira Service Management portal
+## 📊 API Reference
 
-## Usage
+### Core Resolver Functions
 
-1. **Upload Excel File**:
-   - Click "Choose Excel File" button
-   - Select a .xlsx or .xls file
-   - File is automatically processed and validated
+#### Data Validation
+- **`validateExcelData(payload)`** - Main validation with OpenAI
+- **`validateWithCustomRequirements(payload)`** - Custom validation logic
+- **`analyzeDataPurpose(payload)`** - AI-powered purpose analysis
 
-2. **Custom Validation Rules** (Optional):
-   - Enter specific validation criteria in the text area
-   - Examples: "Check for valid email formats", "Ensure all phone numbers are present"
+#### Requirements Management
+- **`generateCustomRequirements(payload)`** - AI-generated validation rules
+- **`analyzeDataPurpose(payload)`** - Intelligent data purpose detection
 
-3. **Review Results**:
-   - **Overall Score**: 0-100 quality rating
-   - **Status Badge**: Valid/Issues Found indicator
-   - **Issues List**: Detailed problems with suggestions
-   - **Recommendations**: AI-generated improvement suggestions
+#### File Management
+- **`monitorFileUpload(payload)`** - Track upload status
+- **`getRecentUploads()`** - Retrieve upload history
+- **`updateFileValidationStatus(payload)`** - Update validation results
 
-## Validation Capabilities
+#### Caching System
+- **`checkFileContentChange(payload)`** - Content change detection
+- **`cacheValidationResult(payload)`** - Store validation results
+- **`getCachedValidationResult(payload)`** - Retrieve cached results
+- **`clearValidationCache()`** - Clear all cached data
+- **`getCacheStatistics()`** - Cache performance metrics
 
-The AI validator checks for:
+#### Jira Integration
+- **`getIssueAttachments(payload)`** - Fetch issue attachments
+- **`processExcelAttachment(payload)`** - Process Excel attachments
 
-- **Data Completeness**: Missing or empty required fields
-- **Data Types**: Inconsistent data types across columns
-- **Format Validation**: Email addresses, phone numbers, dates
-- **Duplicate Detection**: Identifying duplicate entries
-- **Outlier Analysis**: Suspicious or unusual values
-- **Data Quality**: Overall completeness and consistency
+### Response Format
 
-## Sample Data
-
-A sample Excel file (`sample-data.xlsx`) is included with test data containing:
-- Employee information (Name, Email, Phone, Age, Department)
-- Intentional data issues for testing validation
-- Various data types and formats
-
-## API Reference
-
-### Backend Resolvers
-
-#### `validateExcelData(payload)`
-Validates Excel data using OpenAI.
-
-**Parameters**:
-- `excelData`: Array of objects representing Excel rows
-- `validationRules`: Optional custom validation criteria
-
-**Returns**:
 ```json
 {
-  "success": boolean,
+  "success": true,
   "validation": {
-    "isValid": boolean,
-    "overallScore": number,
+    "isValid": true,
+    "overallScore": 95,
     "issues": [
       {
-        "type": "error|warning|info",
-        "field": "field_name",
-        "row": number,
-        "message": "description",
-        "suggestion": "how to fix"
+        "type": "warning",
+        "field": "email",
+        "row": 3,
+        "message": "Email format should be validated",
+        "suggestion": "Use proper email validation pattern"
       }
     ],
-    "summary": "brief summary",
-    "recommendations": ["list of recommendations"]
+    "summary": "Data quality is excellent with minor formatting improvements needed",
+    "recommendations": [
+      "Implement email format validation",
+      "Add phone number formatting"
+    ]
   },
   "dataStats": {
-    "totalRows": number,
-    "totalColumns": number,
-    "headers": ["array of column names"]
+    "totalRows": 150,
+    "totalColumns": 8,
+    "headers": ["Name", "Email", "Phone", "Department"]
+  },
+  "cacheInfo": {
+    "cached": true,
+    "timestamp": "2026-01-07T14:48:03.000Z"
   }
 }
 ```
 
-## Development
+## 🎯 Usage Guide
 
-### Local Development
+### Basic Validation Flow
+1. **Upload File**: Drag and drop or select Excel file
+2. **Auto-Analysis**: System analyzes data purpose automatically
+3. **Custom Requirements**: AI generates tailored validation rules
+4. **Validation**: Comprehensive analysis with scoring
+5. **Results Review**: Detailed findings with actionable recommendations
+
+### Requirements Wizard
+1. **Step 1**: File upload and basic analysis
+2. **Step 2**: Purpose confirmation and customization
+3. **Step 3**: Validation execution and results
+
+### Advanced Features
+- **Cache Management**: Automatic caching for improved performance
+- **Jira Integration**: Process attachments directly from issues
+- **Alternative Scoring**: Multiple validation approaches
+- **Export Results**: Download validation reports
+
+## 🧪 Testing
+
+### Unit Tests
 ```bash
-# Start React development server
-cd static/validaite
-npm start
+# Run Jest tests
+npm test
 
-# In another terminal, start Forge tunnel
-forge tunnel
+# Run with coverage
+npm test -- --coverage
 ```
 
-### Building for Production
-```bash
-# Build React app
-cd static/validaite
-npm run build
-
-# Deploy to Forge
-forge deploy
-```
-
-### Testing
-- Use the provided `sample-data.xlsx` file for testing
+### Manual Testing
+- Use provided sample data files in `/tests` directory
 - Test various Excel formats and data types
-- Verify validation accuracy and AI responses
+- Verify validation accuracy with intentional data issues
+- Test caching behavior with repeated uploads
 
-## Configuration
+### Performance Testing
+- Monitor cache hit rates via `getCacheStatistics`
+- Test with large files (1000+ rows)
+- Verify response times for cached vs. uncached data
+
+## 🔧 Configuration
 
 ### Environment Variables
-- `OPENAI_API_KEY`: Your OpenAI API key (required)
+```bash
+# Required
+OPENAI_API_KEY=your-openai-api-key
+
+# Optional (configured in manifest.yml)
+NODE_ENV=production
+LOG_LEVEL=info
+```
 
 ### Manifest Configuration
-The app is configured as a Jira Service Management portal request create property panel:
-- **Module**: `jiraServiceManagement:portalRequestCreatePropertyPanel`
-- **Resource**: Static React build files
-- **Tunnel**: Port 3000 for development
+- **Runtime**: Node.js 22.x with ARM64 architecture
+- **Memory**: 256MB allocation
+- **Permissions**: Storage, Jira read access, external fetch
+- **External APIs**: OpenAI, Bonzai integration
 
-## Security Considerations
+### Tailwind Configuration
+Custom styling with:
+- Component utilities for consistent design
+- Animation classes for enhanced UX
+- Responsive breakpoints for mobile support
+- Custom color schemes for validation states
 
-- OpenAI API key is stored securely in Forge environment
-- File processing happens client-side before sending to AI
-- Only data samples (first 10 rows) are sent to OpenAI for analysis
-- No persistent storage of uploaded files
+## 🔒 Security & Performance
 
-## Troubleshooting
+### Security Features
+- **API Key Management**: Secure Forge environment variables
+- **Input Validation**: Comprehensive payload validation
+- **Error Handling**: Structured error responses without sensitive data
+- **Content Filtering**: Safe data processing before AI analysis
+
+### Performance Optimizations
+- **Intelligent Caching**: Content-based cache invalidation
+- **Lazy Loading**: Component-based loading for faster initial render
+- **Batch Processing**: Efficient data handling for large files
+- **Memory Management**: Optimized for 256MB runtime environment
+
+### Monitoring & Logging
+- **Structured Logging**: JSON-formatted logs with contextual information
+- **Performance Metrics**: Request duration and cache hit rate tracking
+- **Error Tracking**: Comprehensive error logging with stack traces
+- **Cache Statistics**: Real-time caching performance monitoring
+
+## 🚨 Troubleshooting
 
 ### Common Issues
 
 1. **OpenAI API Errors**:
-   - Verify API key is correctly set
-   - Check API quota and billing status
-   - Ensure network connectivity
+   ```bash
+   # Check API key configuration
+   forge variables list
+   
+   # Verify API quota and billing
+   curl -H "Authorization: Bearer $OPENAI_API_KEY" https://api.openai.com/v1/models
+   ```
 
-2. **Excel Upload Issues**:
-   - Verify file format (.xlsx, .xls)
-   - Check file size limitations
-   - Ensure file is not corrupted
+2. **Build Failures**:
+   ```bash
+   # Clear and reinstall dependencies
+   rm -rf node_modules frontend/validaite/node_modules
+   npm install
+   cd frontend/validaite && npm install
+   
+   # Rebuild application
+   npm run build
+   ```
 
-3. **Build Errors**:
-   - Run `npm install` in both root and `static/validaite` directories
-   - Clear node_modules and reinstall if needed
-   - Check Node.js version compatibility
+3. **Cache Issues**:
+   ```bash
+   # Clear validation cache via resolver
+   # Use clearValidationCache() function
+   
+   # Check cache statistics
+   # Use getCacheStatistics() function
+   ```
 
-## Future Enhancements
+4. **Jira Integration Problems**:
+   - Verify app permissions in Jira admin
+   - Check issue attachment access rights
+   - Validate attachment file formats
 
-- Support for CSV files
-- Batch file processing
-- Custom validation rule templates
-- Integration with Jira issue creation
-- Advanced data visualization
-- Export validation reports
-- Multi-language support
+### Debug Mode
+Enable detailed logging by setting log level:
+```bash
+# Enhanced debugging information
+forge logs --follow
+```
 
-## License
+## 🛣️ Roadmap
+
+### Planned Features
+- **Multi-language Support**: Internationalization for global teams
+- **Custom Validation Templates**: Pre-built validation rule sets
+- **Batch File Processing**: Multiple file validation in single session
+- **Advanced Reporting**: PDF export and detailed analytics
+- **Integration Expansion**: SharePoint, Google Sheets connectivity
+- **Machine Learning**: Pattern recognition for data quality improvements
+
+### Performance Enhancements
+- **Streaming Processing**: Large file handling optimization
+- **Background Processing**: Async validation for better UX
+- **CDN Integration**: Static asset optimization
+- **Database Caching**: Persistent cache layer
+
+## 📝 Contributing
+
+### Development Guidelines
+1. Follow existing code structure and naming conventions
+2. Add unit tests for new features
+3. Update documentation for API changes
+4. Use ESLint configuration for code consistency
+5. Follow React best practices for component development
+
+### Code Quality
+- **Linting**: ESLint with React hooks plugin
+- **Testing**: Jest for unit tests with coverage requirements
+- **Documentation**: JSDoc comments for complex functions
+- **Type Safety**: PropTypes for React components
+
+## 📄 License
 
 MIT License - see LICENSE file for details.
 
-## Support
+## 🆘 Support
 
-For issues and questions:
-1. Check the troubleshooting section
-2. Review Forge documentation
-3. Contact the development team
+### Getting Help
+1. **Documentation**: Check this README and linked guides
+2. **Troubleshooting**: Review common issues section
+3. **Logs**: Use `forge logs` for debugging information
+4. **Community**: Atlassian Developer Community forums
+
+### Issue Reporting
+When reporting issues, include:
+- Forge app version and environment
+- Error messages and logs
+- Steps to reproduce
+- Excel file characteristics (if applicable)
+- Browser and OS information
+
+### Contact
+For technical support and questions:
+- **Development Team**: [Contact Information]
+- **Atlassian Forge**: [Official Documentation]
+- **OpenAI API**: [Platform Documentation]
+
+---
+
+**ValidAIte** - Transforming data validation through intelligent AI analysis in Jira Service Management.
