@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /**
  * Enhanced Excel Data Validation Service
  * Provides AI-powered validation with caching, error handling, and historical insights
@@ -27,52 +26,6 @@ const log = createLogger('ValidationService');
 /**
  * Makes an OpenAI API call for validation with timeout and proper error handling
  * @param {string} prompt - The validation prompt
-=======
-import { openai, OPENAI_CONFIG } from '../config/openai.js';
-
-export const generateValidationPrompt = (dataPreview, headers, validationRules) => {
-    return `
-You are an Excel data validator. Please analyze the following Excel data and validate it according to these rules:
-
-Headers: ${headers.join(', ')}
-
-Sample Data (first 10 rows):
-${JSON.stringify(dataPreview, null, 2)}
-
-Validation Rules:
-${validationRules || 'Standard data validation - check for missing values, data type consistency, and format issues'}
-
-Please provide a validation report in the following JSON format:
-{
-  "isValid": boolean,
-  "overallScore": number (0-100),
-  "issues": [
-    {
-      "type": "error" | "warning" | "info",
-      "field": "field_name",
-      "row": row_number,
-      "message": "description of the issue",
-      "suggestion": "how to fix it"
-    }
-  ],
-  "summary": "brief summary of validation results",
-  "recommendations": ["list of recommendations for data improvement"]
-}
-
-Focus on:
-1. Missing or empty required fields
-2. Data type inconsistencies
-3. Format issues (dates, emails, phone numbers, etc.)
-4. Duplicate entries
-5. Outliers or suspicious values
-6. Data completeness and quality
-`;
-};
-
-/**
- * Call OpenAI API for data validation
- * @param {string} prompt - Validation prompt
->>>>>>> main
  * @returns {Object} OpenAI completion response
  */
 export const callOpenAIValidation = async (prompt) => {

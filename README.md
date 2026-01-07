@@ -2,7 +2,7 @@
 
 A comprehensive Forge app for Jira Service Management that provides AI-powered Excel file validation using OpenAI. Features intelligent data analysis, custom validation requirements generation, caching for performance optimization, and seamless Jira integration.
 
-## 🚀 Features
+## Features
 
 ### Core Validation
 - **Excel File Upload**: Support for .xlsx and .xls files with drag-and-drop interface
@@ -25,7 +25,7 @@ A comprehensive Forge app for Jira Service Management that provides AI-powered E
 - **Progressive Enhancement**: Step-by-step validation process with clear feedback
 - **Error Handling**: Comprehensive error management with detailed logging
 
-## 🏗️ Architecture
+## Architecture
 
 ### Backend (Forge Resolver)
 - **Framework**: Atlassian Forge with Node.js 22.x
@@ -58,7 +58,7 @@ A comprehensive Forge app for Jira Service Management that provides AI-powered E
 - `PostCreationAttachment.js` - Post-validation file management
 - `wizard/` - Step-by-step wizard components
 
-## 🛠️ Installation
+## Installation
 
 ### Prerequisites
 - **Node.js**: 18+ (22.x recommended)
@@ -114,7 +114,7 @@ A comprehensive Forge app for Jira Service Management that provides AI-powered E
    forge tunnel
    ```
 
-## 📊 API Reference
+## API Reference
 
 ### Core Resolver Functions
 
@@ -178,7 +178,7 @@ A comprehensive Forge app for Jira Service Management that provides AI-powered E
 }
 ```
 
-## 🎯 Usage Guide
+## Usage Guide
 
 ### Basic Validation Flow
 1. **Upload File**: Drag and drop or select Excel file
@@ -198,7 +198,7 @@ A comprehensive Forge app for Jira Service Management that provides AI-powered E
 - **Alternative Scoring**: Multiple validation approaches
 - **Export Results**: Download validation reports
 
-## 🧪 Testing
+## Testing
 
 ### Unit Tests
 ```bash
@@ -245,7 +245,7 @@ Custom styling with:
 - Responsive breakpoints for mobile support
 - Custom color schemes for validation states
 
-## 🔒 Security & Performance
+## Security & Performance
 
 ### Security Features
 - **API Key Management**: Secure Forge environment variables
@@ -265,7 +265,7 @@ Custom styling with:
 - **Error Tracking**: Comprehensive error logging with stack traces
 - **Cache Statistics**: Real-time caching performance monitoring
 
-## 🚨 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -310,7 +310,7 @@ Enable detailed logging by setting log level:
 forge logs --follow
 ```
 
-## 🛣️ Roadmap
+## Roadmap
 
 ### Planned Features
 - **Multi-language Support**: Internationalization for global teams
@@ -326,7 +326,7 @@ forge logs --follow
 - **CDN Integration**: Static asset optimization
 - **Database Caching**: Persistent cache layer
 
-## 📝 Contributing
+## Contributing
 
 ### Development Guidelines
 1. Follow existing code structure and naming conventions
@@ -340,32 +340,6 @@ forge logs --follow
 - **Testing**: Jest for unit tests with coverage requirements
 - **Documentation**: JSDoc comments for complex functions
 - **Type Safety**: PropTypes for React components
-
-## 📄 License
-
-MIT License - see LICENSE file for details.
-
-## 🆘 Support
-
-### Getting Help
-1. **Documentation**: Check this README and linked guides
-2. **Troubleshooting**: Review common issues section
-3. **Logs**: Use `forge logs` for debugging information
-4. **Community**: Atlassian Developer Community forums
-
-### Issue Reporting
-When reporting issues, include:
-- Forge app version and environment
-- Error messages and logs
-- Steps to reproduce
-- Excel file characteristics (if applicable)
-- Browser and OS information
-
-### Contact
-For technical support and questions:
-- **Development Team**: [Contact Information]
-- **Atlassian Forge**: [Official Documentation]
-- **OpenAI API**: [Platform Documentation]
 
 ---
 

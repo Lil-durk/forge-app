@@ -1,25 +1,5 @@
-<<<<<<< HEAD
-/**
- * Jira Service
- * Handles Jira API interactions for attachment processing and issue management
- */
-
-import api, { route } from '@forge/api';
-import * as XLSX from 'xlsx';
-import { createLogger } from '../utils/logger.js';
-import { validateFileSize, validateFilename, sanitizeString } from '../utils/inputValidation.js';
-
-const log = createLogger('JiraService');
-
-/**
- * Get attachments for a specific Jira issue
- * @param {string} issueKey - Jira issue key
- * @returns {Object} Result with attachments array
- */
-=======
 import { requestJira } from '@forge/api';
 
->>>>>>> main
 export const getIssueAttachments = async (issueKey) => {
     try {
         if (!issueKey) {
@@ -33,26 +13,9 @@ export const getIssueAttachments = async (issueKey) => {
         // Sanitize issue key
         const sanitizedIssueKey = sanitizeString(issueKey, 50);
         
-<<<<<<< HEAD
-        log.debug('getIssueAttachments', 'Fetching issue attachments', { issueKey: sanitizedIssueKey });
-
-        const response = await api.asUser().requestJira(route`/rest/api/3/issue/${sanitizedIssueKey}?fields=attachment`, {
-            headers: {
-                'Accept': 'application/json'
-            }
-        });
-
-        if (response.status !== 200) {
-            log.error('getIssueAttachments', 'Failed to fetch issue from Jira API', new Error(`HTTP ${response.status}`), {
-                issueKey: sanitizedIssueKey,
-                status: response.status,
-                statusText: response.statusText
-            });
-=======
         const response = await requestJira(`/rest/api/3/issue/${issueKey}?fields=attachment`);
         
         if (response.status !== 200) {
->>>>>>> main
             return {
                 success: false,
                 error: `Failed to fetch issue: ${response.status}`
@@ -60,26 +23,12 @@ export const getIssueAttachments = async (issueKey) => {
         }
 
         const issue = await response.json();
-<<<<<<< HEAD
-        const attachments = issue.fields?.attachment || [];
-
-=======
         const attachments = issue.fields.attachment || [];
         
->>>>>>> main
         // Filter for Excel files
         const excelAttachments = attachments.filter(attachment => 
             attachment.filename.match(/\.(xlsx|xls)$/i)
         );
-<<<<<<< HEAD
-
-        log.info('getIssueAttachments', 'Successfully retrieved issue attachments', {
-            issueKey: sanitizedIssueKey,
-            totalAttachments: attachments.length,
-            excelAttachments: excelAttachments.length
-        });
-
-=======
         
         const formattedAttachments = excelAttachments.map(attachment => ({
             id: attachment.id,
@@ -91,7 +40,6 @@ export const getIssueAttachments = async (issueKey) => {
             content: attachment.content
         }));
         
->>>>>>> main
         return {
             success: true,
             attachments: excelAttachments,
@@ -100,10 +48,6 @@ export const getIssueAttachments = async (issueKey) => {
         };
 
     } catch (error) {
-<<<<<<< HEAD
-        log.error('getIssueAttachments', 'Failed to get issue attachments', error, { issueKey });
-=======
->>>>>>> main
         return {
             success: false,
             error: error.message
@@ -111,15 +55,6 @@ export const getIssueAttachments = async (issueKey) => {
     }
 };
 
-<<<<<<< HEAD
-/**
- * Process and download Excel attachment from Jira
- * @param {string} attachmentId - Attachment ID
- * @param {string} filename - Attachment filename
- * @returns {Object} Result with processed Excel data
- */
-=======
->>>>>>> main
 export const processExcelAttachment = async (attachmentId, filename) => {
     try {
         if (!attachmentId || !filename) {
@@ -137,49 +72,15 @@ export const processExcelAttachment = async (attachmentId, filename) => {
         const sanitizedAttachmentId = sanitizeString(attachmentId, 100);
         let cleanFilename;
         
-<<<<<<< HEAD
-        try {
-            cleanFilename = validateFilename(filename);
-        } catch (validationError) {
-            log.error('processExcelAttachment', 'Invalid filename', validationError, { filename });
-            return {
-                success: false,
-                error: validationError.message
-            };
-        }
-
-        log.debug('processExcelAttachment', 'Starting Excel attachment processing', {
-            attachmentId: sanitizedAttachmentId,
-            filename: cleanFilename
-        });
-
-        const response = await api.asUser().requestJira(route`/rest/api/3/attachment/content/${sanitizedAttachmentId}`, {
-            headers: {
-                'Accept': 'application/octet-stream'
-            }
-        });
-
-        if (response.status !== 200) {
-            log.error('processExcelAttachment', 'Failed to download attachment from Jira', new Error(`HTTP ${response.status}`), {
-                attachmentId: sanitizedAttachmentId,
-                status: response.status,
-                statusText: response.statusText
-            });
-=======
         const response = await requestJira(`/rest/api/3/attachment/content/${attachmentId}`);
         
         if (response.status !== 200) {
->>>>>>> main
             return {
                 success: false,
                 error: `Failed to download attachment: ${response.status}`
             };
         }
-<<<<<<< HEAD
-
-=======
         
->>>>>>> main
         const fileBuffer = await response.buffer();
         
         // Validate file size
@@ -212,14 +113,6 @@ export const processExcelAttachment = async (attachmentId, filename) => {
 
         return {
             success: true,
-<<<<<<< HEAD
-            filename: cleanFilename,
-            attachmentId: sanitizedAttachmentId,
-            excelData,
-            rowCount: excelData.length,
-            sheetName,
-            fileSize: fileBuffer.length
-=======
             message: 'Excel attachment downloaded successfully',
             fileInfo: {
                 id: attachmentId,
@@ -228,17 +121,9 @@ export const processExcelAttachment = async (attachmentId, filename) => {
                 downloadedAt: new Date().toISOString()
             },
             requiresFrontendProcessing: true
->>>>>>> main
         };
 
     } catch (error) {
-<<<<<<< HEAD
-        log.error('processExcelAttachment', 'Failed to process Excel attachment', error, {
-            attachmentId,
-            filename
-        });
-=======
->>>>>>> main
         return {
             success: false,
             error: error.message
