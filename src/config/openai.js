@@ -5,13 +5,8 @@
 
 import { OpenAI } from 'openai';
 
-// Only log configuration in development mode to avoid performance impact and security issues
-if (process.env.NODE_ENV === 'development') {
-    console.log('=== API KEY CONFIGURATION ===');
-    console.log('API Key present:', !!process.env.OPENAI_API_KEY);
-    console.log('API Key length:', process.env.OPENAI_API_KEY ? process.env.OPENAI_API_KEY.length : 0);
-    console.log('API Key prefix:', process.env.OPENAI_API_KEY ? process.env.OPENAI_API_KEY.substring(0, 8) + '...' : 'N/A');
-    console.log('Base URL:', process.env.OPENAI_BASE_URL || 'Using default from code');
+if (process.env.NODE_ENV === 'development' && !process.env.OPENAI_API_KEY) {
+    console.warn('⚠️ OPENAI_API_KEY not found in environment variables');
 }
 
 export const openai = new OpenAI({
@@ -23,9 +18,6 @@ export const openai = new OpenAI({
     dangerouslyAllowBrowser: false
 });
 
-if (process.env.NODE_ENV === 'development') {
-    console.log('OpenAI client initialized successfully for LiteLLM virtual key');
-}
 
 export const openaiClient = openai;
 

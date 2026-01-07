@@ -4,7 +4,6 @@
  */
 
 import React, { useState } from 'react';
-import EmptyCellAnalysis from './EmptyCellAnalysis';
 
 const ValidationResults = ({ validationResult, isUsingCachedResult = false, excelData, fileName }) => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -78,7 +77,7 @@ const ValidationResults = ({ validationResult, isUsingCachedResult = false, exce
         
         <div className="validation-status enhanced">
           <div className={`status-badge ${validation.isValid ? 'valid' : 'invalid'}`}>
-            {validation.isValid ? '✅ Ready to Submit' : '⚠️ Needs Attention'}
+            {validation.isValid ? 'Ready to Submit' : 'Needs Attention'}
           </div>
           
           {/* Risk Assessment */}
@@ -124,14 +123,6 @@ const ValidationResults = ({ validationResult, isUsingCachedResult = false, exce
         >
           Issues ({validation.issues?.length || 0})
         </button>
-        {excelData && excelData.length > 0 && (
-          <button 
-            className={`tab-button ${activeTab === 'emptyCells' ? 'active' : ''}`}
-            onClick={() => setActiveTab('emptyCells')}
-          >
-            🔍 Empty Cells
-          </button>
-        )}
       </div>
 
       <div className="tab-content">
@@ -257,18 +248,6 @@ const ValidationResults = ({ validationResult, isUsingCachedResult = false, exce
           </div>
         )}
 
-        {/* Empty Cell Analysis Tab */}
-        {activeTab === 'emptyCells' && excelData && (
-          <div className="empty-cells-tab">
-            <EmptyCellAnalysis 
-              excelData={excelData}
-              fileName={fileName}
-              onAnalysisComplete={(analysis) => {
-                console.log('Empty cell analysis completed:', analysis);
-              }}
-            />
-          </div>
-        )}
 
         {/* Historical Insights Tab */}
         {activeTab === 'insights' && historicalInsights && (

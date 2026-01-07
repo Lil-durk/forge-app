@@ -30,7 +30,7 @@ export const validateData = async (data, fileName, {
     // Use standard validation
     const result = await invoke('validateExcelData', {
       excelData: data,
-      validationRules: 'Standard data validation - check for missing values, data type consistency, and format issues'
+      validationRules: 'Standard data validation - check for data type consistency and format issues'
     });
     
     if (result.success) {
@@ -45,7 +45,7 @@ export const validateData = async (data, fileName, {
       await cacheValidationResult(currentFileHash, result, {
         fileName: fileName,
         validationType: 'standard',
-        validationRules: 'Standard data validation - check for missing values, data type consistency, and format issues'
+        validationRules: 'Standard data validation - check for data type consistency and format issues'
       });
     } else {
       setError(result.error || 'Enhanced validation failed');

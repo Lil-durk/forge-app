@@ -9,21 +9,53 @@ import { monitorFileUpload, getRecentUploads, updateFileValidationStatus } from 
 import { getIssueAttachments, processExcelAttachment } from './services/jira.js';
 import { analyzeDataPurpose, generateCustomRequirements, validateWithCustomRequirements } from './services/requirementsWizard.js';
 import { checkFileContentChange, cacheValidationResult, getCachedValidationResult, clearValidationCache, getCacheStatistics } from './services/fileContentCache.js';
-import { performDeliveryLeadValidation, analyzeContext } from './services/deliveryLeadService.js';
+import { createLogger } from './utils/logger.js';
+import { validatePayload } from './utils/inputValidation.js';
+
+const log = createLogger('ResolverIndex');
 
 const resolver = new Resolver();
 
 /**
- * Generic error handler for resolver functions
+ * Generic error handler for resolver functions with input validation
  * @param {Function} handler - The resolver function to wrap
  * @param {string} operationName - Name of the operation for logging
+ * @param {Array<string>} requiredFields - Required fields in payload
  * @returns {Function} Wrapped resolver function with error handling
  */
-const withErrorHandling = (handler, operationName) => async (req) => {
+const withErrorHandling = (handler, operationName, requiredFields = []) => async (req) => {
+    const startTime = Date.now();
+    
+    log.debug('withErrorHandling', `Starting ${operationName}`, {
+        operation: operationName,
+        hasPayload: !!req.payload,
+        payloadKeys: req.payload ? Object.keys(req.payload) : []
+    });
+
     try {
-        return await handler(req);
+        // Validate payload structure
+        if (req.payload && requiredFields.length > 0) {
+            validatePayload(req.payload, requiredFields);
+        }
+
+        const result = await handler(req);
+        
+        const duration = Date.now() - startTime;
+        log.info('withErrorHandling', `${operationName} completed successfully`, {
+            operation: operationName,
+            duration: `${duration}ms`,
+            success: result?.success !== false
+        });
+
+        return result;
     } catch (error) {
-        console.error(`${operationName} resolver error:`, error);
+        const duration = Date.now() - startTime;
+        log.error('withErrorHandling', `${operationName} failed`, error, {
+            operation: operationName,
+            duration: `${duration}ms`,
+            payloadKeys: req.payload ? Object.keys(req.payload) : []
+        });
+        
         return {
             success: false,
             error: error.message || `Failed to ${operationName.toLowerCase()}`
@@ -35,7 +67,7 @@ const withErrorHandling = (handler, operationName) => async (req) => {
 resolver.define('validateExcelData', withErrorHandling(async (req) => {
     const { excelData, validationRules } = req.payload;
     return await validateExcelData(excelData, validationRules);
-}, 'Excel Data Validation'));
+}, 'Excel Data Validation', ['excelData']));
 
 // File Management
 resolver.define('monitorFileUpload', withErrorHandling(async (req) => {
@@ -49,18 +81,18 @@ resolver.define('getRecentUploads', withErrorHandling(async (req) => {
 resolver.define('updateFileValidationStatus', withErrorHandling(async (req) => {
     const { fileId, validationResult } = req.payload;
     return await updateFileValidationStatus(fileId, validationResult);
-}, 'Update File Validation Status'));
+}, 'Update File Validation Status', ['fileId', 'validationResult']));
 
 // Jira Integration
 resolver.define('getIssueAttachments', withErrorHandling(async (req) => {
     const { issueKey } = req.payload;
     return await getIssueAttachments(issueKey);
-}, 'Get Issue Attachments'));
+}, 'Get Issue Attachments', ['issueKey']));
 
 resolver.define('processExcelAttachment', withErrorHandling(async (req) => {
     const { attachmentId, filename } = req.payload;
     return await processExcelAttachment(attachmentId, filename);
-}, 'Process Excel Attachment'));
+}, 'Process Excel Attachment', ['attachmentId', 'filename']));
 
 // Requirements Wizard
 resolver.define('analyzeDataPurpose', withErrorHandling(async (req) => {
@@ -102,16 +134,5 @@ resolver.define('getCacheStatistics', withErrorHandling(async (req) => {
     return await getCacheStatistics();
 }, 'Get Cache Statistics'));
 
-// Delivery Lead Validation
-resolver.define('performDeliveryLeadValidation', withErrorHandling(async (req) => {
-    const { excelData, pageContext } = req.payload;
-    return await performDeliveryLeadValidation(excelData, pageContext);
-}, 'Delivery Lead Validation'));
-
-// Context Analysis
-resolver.define('analyzeContext', withErrorHandling(async (req) => {
-    const { excelData, pageContext } = req.payload;
-    return await analyzeContext(excelData, pageContext);
-}, 'Context Analysis'));
 
 export const handler = resolver.getDefinitions();

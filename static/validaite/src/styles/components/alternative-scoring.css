@@ -1,0 +1,317 @@
+/* =============================================================================
+   COMPONENT - ALTERNATIVE SCORING
+   ============================================================================= */
+
+.alternative-scoring {
+  padding: 40px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border-radius: 24px;
+  margin: 20px 0;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.alternative-scoring::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #000000, #6b7280, #ffffff, #6b7280, #000000);
+  border-radius: 24px 24px 0 0;
+}
+
+.alternative-scoring-enter {
+  opacity: 0;
+  transform: translateY(20px) scale(0.98);
+}
+
+.alternative-scoring-active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Header */
+.alt-scoring-header {
+  text-align: center;
+  margin-bottom: 40px;
+  position: relative;
+}
+
+.header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 8px 20px;
+  border-radius: 25px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.badge-icon {
+  font-size: 1.1rem;
+}
+
+.badge-text {
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.alt-scoring-header h3 {
+  margin: 0 0 10px 0;
+  color: #1e293b;
+  font-size: 2.2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.alt-scoring-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+/* Simple Layout - Just 2 Cards */
+.simple-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+/* Health Status Card */
+.health-status-card {
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f1f5f9;
+  transition: all 0.3s ease;
+}
+
+.health-status-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12);
+}
+
+.status-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.status-header h4 {
+  margin: 0;
+  color: #1e293b;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.health-visual {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
+
+.health-indicator {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 800;
+  font-size: 1.2rem;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  animation: healthPulse 2s ease-in-out infinite;
+}
+
+@keyframes healthPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.health-score {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.health-description {
+  flex: 1;
+}
+
+.health-description p {
+  margin: 0;
+  color: #475569;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+/* Improvement Summary Card */
+.improvement-summary-card {
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f1f5f9;
+  transition: all 0.3s ease;
+}
+
+.improvement-summary-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12);
+}
+
+.summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.summary-header h4 {
+  margin: 0;
+  color: #1e293b;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.priority-indicator {
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.improvement-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.improvement-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  padding: 20px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border-left: 4px solid #000000;
+  transition: all 0.3s ease;
+}
+
+.improvement-item:hover {
+  background: #f1f5f9;
+  transform: translateX(5px);
+}
+
+.improvement-number {
+  background: #000000;
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.improvement-item p {
+  margin: 0;
+  color: #475569;
+  font-size: 1rem;
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+/* Responsive Design for Alternative Scoring */
+@media (max-width: 1024px) {
+  .simple-layout {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+  
+  .alt-scoring-header h3 {
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .alternative-scoring {
+    padding: 25px;
+    margin: 15px 0;
+  }
+  
+  .simple-layout {
+    gap: 20px;
+  }
+  
+  .health-status-card,
+  .improvement-summary-card {
+    padding: 20px;
+  }
+  
+  .alt-scoring-header h3 {
+    font-size: 1.6rem;
+  }
+  
+  .alt-scoring-header p {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .alternative-scoring {
+    padding: 20px;
+    border-radius: 16px;
+  }
+  
+  .alt-scoring-header {
+    margin-bottom: 25px;
+  }
+  
+  .header-badge {
+    font-size: 0.8rem;
+    padding: 6px 16px;
+  }
+  
+  .alt-scoring-header h3 {
+    font-size: 1.4rem;
+  }
+  
+  .health-status-card,
+  .improvement-summary-card {
+    padding: 15px;
+    border-radius: 16px;
+  }
+  
+  .health-visual {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+}

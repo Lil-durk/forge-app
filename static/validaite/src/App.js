@@ -3,7 +3,7 @@
  * Clean and optimized version with only active functionality
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import './App.css';
 
 // Import custom hooks
@@ -17,14 +17,14 @@ import { processUploadedFile, handleFileUpload } from './utils/fileProcessing';
 // Import components
 import FileUpload from './components/FileUpload';
 import ValidationResults from './components/ValidationResults';
+import AlternativeScoring from './components/AlternativeScoring';
 import DataPreview from './components/DataPreview';
 import PageContextDisplay from './components/PageContextDisplay';
-import DeliveryLeadValidation from './components/DeliveryLeadValidation';
 import ClearCacheButton from './components/ClearCacheButton';
 
 function App() {
   const state = useAppState();
-  const { requestType } = usePageContext();
+  usePageContext();
   const { displayMode, displayReason, isEvaluating, forceDisplay } = useConditionalDisplay();
 
   // Handle file upload with validation
@@ -154,11 +154,18 @@ function App() {
 
         <DataPreview excelData={state.excelData} />
 
+        {/* Original Classic Scoring System */}
         <ValidationResults 
           validationResult={state.validationResult} 
           isUsingCachedResult={state.isUsingCachedResult}
           excelData={state.excelData}
           fileName={state.fileName}
+        />
+
+        {/* New Health Analytics System */}
+        <AlternativeScoring 
+          validationResult={state.validationResult}
+          isActive={true}
         />
 
         {/* Clear Cache Button - Always visible for developers */}
@@ -170,13 +177,6 @@ function App() {
           }}
         />
 
-        {/* Delivery Lead Validation - Shows when Excel data is available */}
-        {state.excelData && state.excelData.length > 0 && (
-          <DeliveryLeadValidation
-            excelData={state.excelData}
-            pageContext={{ requestType }}
-          />
-        )}
 
       </div>
     </div>

@@ -32,8 +32,6 @@ permissions:
     - read:attachment:jira
     - read:servicedesk-request
     - read:jira-user
-    - read:confluence-content.all
-    - read:confluence-space.summary
   external:
     fetch:
       backend:

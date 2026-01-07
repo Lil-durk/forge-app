@@ -121,7 +121,6 @@ src/
 │   ├── fileContentCache.js       # Performance caching
 │   ├── jira.js                   # Platform integration
 │   ├── ai/                       # AI processing modules
-│   ├── confluence/               # Knowledge base integration
 │   └── requirements/             # Dynamic validation rules
 ```
 
@@ -139,9 +138,7 @@ src/
 ├── ai/
 │   ├── promptBuilder.js          # Dynamic prompt construction
 │   ├── responseParser.js         # AI response processing
-│   ├── emptyCellAnalyzer.js      # Specialized cell validation
-│   ├── simpleDeliveryLeadValidator.js  # Context-aware validation
-│   └── templateBasedValidator.js  # Template-driven validation
+│   └── simpleDeliveryLeadValidator.js  # Context-aware validation
 ```
 
 #### 3.3.3 Prompt Engineering Strategy

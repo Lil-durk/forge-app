@@ -9,15 +9,35 @@ import {
     cacheValidationResult, 
     checkFileContentChange 
 } from './fileContentCache.js';
+import { createLogger } from '../utils/logger.js';
+import { validateExcelData as validateExcelDataInput, validateValidationRules, sanitizeString } from '../utils/inputValidation.js';
+
+const log = createLogger('ValidationService');
+
+// Request timeout in milliseconds (30 seconds)
+const REQUEST_TIMEOUT = 30000;
 
 /**
- * Makes an OpenAI API call for validation
+ * Makes an OpenAI API call for validation with timeout and proper error handling
  * @param {string} prompt - The validation prompt
  * @returns {Object} OpenAI completion response
  */
 export const callOpenAIValidation = async (prompt) => {
+    const sanitizedPrompt = sanitizeString(prompt, 10000); // Limit prompt size
+    
+    log.debug('callOpenAIValidation', 'Starting OpenAI API call', { 
+        promptLength: sanitizedPrompt.length,
+        model: OPENAI_CONFIG.MODEL 
+    });
+
     try {
-        const completion = await openaiClient.chat.completions.create({
+        // Create timeout promise
+        const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Request timeout')), REQUEST_TIMEOUT);
+        });
+
+        // Create API call promise
+        const apiCallPromise = openaiClient.chat.completions.create({
             model: OPENAI_CONFIG.MODEL,
             messages: [
                 {
@@ -26,16 +46,23 @@ export const callOpenAIValidation = async (prompt) => {
                 },
                 {
                     role: "user",
-                    content: prompt
+                    content: sanitizedPrompt
                 }
             ],
             max_tokens: OPENAI_CONFIG.MAX_TOKENS,
             temperature: OPENAI_CONFIG.TEMPERATURE
         });
 
+        // Race between timeout and API call
+        const completion = await Promise.race([apiCallPromise, timeoutPromise]);
+        
+        log.debug('callOpenAIValidation', 'OpenAI API call completed successfully', {
+            tokensUsed: completion.usage?.total_tokens || 'unknown'
+        });
+
         return completion;
     } catch (error) {
-        console.error('❌ OpenAI API call failed:', error.message);
+        log.error('callOpenAIValidation', 'OpenAI API call failed', error);
         throw new Error(`OpenAI API error: ${error.message}`);
     }
 };
@@ -46,6 +73,10 @@ export const callOpenAIValidation = async (prompt) => {
  * @returns {Object} Parsed validation result
  */
 export const parseValidationResponse = (responseContent) => {
+    log.debug('parseValidationResponse', 'Parsing OpenAI response', { 
+        contentLength: responseContent?.length || 0 
+    });
+
     try {
         let cleanedContent = responseContent.trim();
         
@@ -53,19 +84,29 @@ export const parseValidationResponse = (responseContent) => {
         const jsonMatch = cleanedContent.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
         if (jsonMatch) {
             cleanedContent = jsonMatch[1];
+            log.debug('parseValidationResponse', 'Extracted JSON from code block');
         }
 
         const parsedResponse = JSON.parse(cleanedContent);
         
         // Validate required structure
         if (!parsedResponse.overallScore && parsedResponse.overallScore !== 0) {
+            log.error('parseValidationResponse', 'Missing overallScore in response', { 
+                responseKeys: Object.keys(parsedResponse)
+            });
             throw new Error('Missing overallScore in response');
         }
         
+        log.debug('parseValidationResponse', 'Successfully parsed validation response', {
+            overallScore: parsedResponse.overallScore,
+            issuesCount: parsedResponse.issues?.length || 0
+        });
+        
         return parsedResponse;
     } catch (parseError) {
-        console.error('❌ JSON parsing failed:', parseError.message);
-        console.error('Raw content:', cleanedContent);
+        log.error('parseValidationResponse', 'JSON parsing failed', parseError, {
+            rawContentPreview: responseContent?.substring(0, 200) + '...'
+        });
         throw new Error(`Failed to parse validation response: ${parseError.message}`);
     }
 };
@@ -77,11 +118,33 @@ export const parseValidationResponse = (responseContent) => {
  * @returns {Object} Validation result with success status and data
  */
 export const validateExcelData = async (excelData, validationRules) => {
+    log.info('validateExcelData', 'Starting Excel data validation', {
+        dataRows: excelData?.length || 0,
+        hasRules: !!validationRules
+    });
+
     try {
+        // Input validation
+        validateExcelDataInput(excelData, 'Excel validation request');
+        
+        if (validationRules && typeof validationRules === 'string') {
+            const sanitizedRules = sanitizeString(validationRules, 1000);
+            if (sanitizedRules !== validationRules) {
+                log.warn('validateExcelData', 'Validation rules were sanitized', {
+                    originalLength: validationRules.length,
+                    sanitizedLength: sanitizedRules.length
+                });
+            }
+            validationRules = sanitizedRules;
+        }
+
         // Check for cached result first
         const cacheCheck = await checkFileContentChange(excelData, 'validation_request');
         
         if (cacheCheck.cachedResult) {
+            log.info('validateExcelData', 'Using cached validation result', {
+                cacheAge: cacheCheck.cachedResult.metadata?.timestamp
+            });
             return {
                 success: true,
                 validation: cacheCheck.cachedResult.validationResult.validation,
@@ -95,7 +158,7 @@ export const validateExcelData = async (excelData, validationRules) => {
         const prompt = `
 Please analyze this Excel data and provide a comprehensive validation report.
 
-VALIDATION RULES: ${validationRules}
+VALIDATION RULES: ${validationRules || 'General data quality validation'}
 
 EXCEL DATA (${excelData.length} rows):
 ${JSON.stringify(excelData.slice(0, 100), null, 2)}
@@ -114,7 +177,6 @@ Please return a JSON response with this exact structure:
         }
     ],
     "dataQuality": {
-        "completeness": <0-100>,
         "consistency": <0-100>,
         "accuracy": <0-100>
     },
@@ -130,9 +192,9 @@ Please return a JSON response with this exact structure:
             totalHistoricalTickets: Math.floor(Math.random() * 1000) + 100,
             averageResolutionTime: `${Math.floor(Math.random() * 48) + 1} hours`,
             commonIssuePatterns: [
-                "Missing required fields",
                 "Data format inconsistencies",
-                "Duplicate entries"
+                "Duplicate entries",
+                "Invalid data types"
             ]
         };
 
@@ -150,12 +212,21 @@ Please return a JSON response with this exact structure:
                 validationRules,
                 timestamp: new Date().toISOString()
             });
+            log.debug('validateExcelData', 'Validation result cached successfully');
         }
+
+        log.info('validateExcelData', 'Validation completed successfully', {
+            overallScore: validationResult.overallScore,
+            issuesFound: validationResult.issues?.length || 0
+        });
 
         return result;
 
     } catch (error) {
-        console.error('❌ Validation failed:', error.message);
+        log.error('validateExcelData', 'Validation failed', error, {
+            dataRows: excelData?.length || 0,
+            hasRules: !!validationRules
+        });
         return {
             success: false,
             error: error.message,
