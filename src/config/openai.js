@@ -19,15 +19,8 @@ export const openai = new OpenAI({
 });
 
 
-<<<<<<< HEAD
 export const openaiClient = openai;
 
-=======
-/**
- * Configuration constants for OpenAI API calls
- * Optimized for maximum determinism and consistency
- */
->>>>>>> main
 export const OPENAI_CONFIG = {
     BASE_URL: "https://api-v2.bonzai.iodigital.com/v1",
     MODEL: "claude-4-5-sonnet",

@@ -40,12 +40,12 @@ const ClearCacheButton = ({ onCacheCleared }) => {
         }
         
         // Show success message
-        console.log(`✅ Cache cleared successfully! Removed ${result.clearedCount} cached results.`);
+        console.log(`Cache cleared successfully! Removed ${result.clearedCount} cached results.`);
       } else {
-        console.error('❌ Failed to clear cache:', result.error);
+        console.error('Failed to clear cache:', result.error);
       }
     } catch (error) {
-      console.error('❌ Error clearing cache:', error);
+      console.error('Error clearing cache:', error);
     } finally {
       setIsClearing(false);
     }
@@ -69,7 +69,7 @@ const ClearCacheButton = ({ onCacheCleared }) => {
         {cacheStats && (
           <div className="cache-stats">
             <span className="cache-count">
-              📊 {cacheStats.totalCachedResults} cached validation{cacheStats.totalCachedResults !== 1 ? 's' : ''}
+              {cacheStats.totalCachedResults} cached validation{cacheStats.totalCachedResults !== 1 ? 's' : ''}
             </span>
           </div>
         )}
@@ -77,7 +77,7 @@ const ClearCacheButton = ({ onCacheCleared }) => {
         {lastCleared && (
           <div className="last-cleared">
             <span className="last-cleared-text">
-              ✅ Last cleared: {lastCleared.toLocaleTimeString()}
+              Last cleared: {lastCleared.toLocaleTimeString()}
             </span>
           </div>
         )}
@@ -111,18 +111,6 @@ const ClearCacheButton = ({ onCacheCleared }) => {
           <span className="icon">🔄</span>
           Refresh Stats
         </button>
-      </div>
-
-      <div className="cache-help">
-        <details>
-          <summary>ℹ️ When to use Clear Cache</summary>
-          <ul>
-            <li>After modifying validation rules or AI prompts</li>
-            <li>When you want the AI to reconsider the same file</li>
-            <li>After updating data analysis logic</li>
-            <li>When testing different validation approaches</li>
-          </ul>
-        </details>
       </div>
 
       <style jsx>{`

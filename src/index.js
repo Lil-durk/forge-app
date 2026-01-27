@@ -2,7 +2,6 @@ import Resolver from '@forge/resolver';
 import { validateExcelData } from './services/validation.js';
 import { monitorFileUpload, getRecentUploads, updateFileValidationStatus } from './services/storage.js';
 import { getIssueAttachments, processExcelAttachment } from './services/jira.js';
-<<<<<<< HEAD
 import { analyzeDataPurpose, generateCustomRequirements, validateWithCustomRequirements } from './services/requirementsWizard.js';
 import { checkFileContentChange, cacheValidationResult, getCachedValidationResult, clearValidationCache, getCacheStatistics } from './services/fileContentCache.js';
 import { createLogger } from './utils/logger.js';
@@ -61,87 +60,31 @@ const withErrorHandling = (handler, operationName, requiredFields = []) => async
 
 // Basic Validation
 resolver.define('validateExcelData', withErrorHandling(async (req) => {
-=======
-import { testApiKeyConfiguration } from './resolvers/apiTest.js';
-import { 
-    storeUploadedFile, 
-    getPendingFiles, 
-    attachFileToIssue, 
-    attachAllPendingFiles, 
-    removePendingFile,
-    createIssueWithFiles
-} from './services/fileAttachment.js';
-import { 
-    createIssueWithFileInfo,
-    createIssueWithDownloadableFiles,
-    attemptPostCreationAttachment,
-    getFileContent,
-    cleanupOldFiles
-} from './services/fileAttachmentFixed.js';
-import { 
-    createIssueWithRealFileAttachment,
-    createIssueWithAlternativeAttachment
-} from './services/realFileAttachment.js';
-import { createIssueWithAnalysisReport } from './services/analysisReporting.js';
-import {
-    storeFilesForPostAttachment,
-    processPostCreationAttachments,
-    getPendingAttachments,
-    getIssueCommentData,
-    cleanupOldAttachmentRequests
-} from './services/postCreationAttachment.js';
-
-const resolver = new Resolver();
-
-resolver.define('testApiKeyConfiguration', testApiKeyConfiguration);
-
-resolver.define('validateExcelData', async (req) => {
->>>>>>> main
     const { excelData, validationRules } = req.payload;
     return await validateExcelData(excelData, validationRules);
 }, 'Excel Data Validation', ['excelData']));
 
-<<<<<<< HEAD
 // File Management
 resolver.define('monitorFileUpload', withErrorHandling(async (req) => {
-=======
-resolver.define('monitorFileUpload', async (req) => {
->>>>>>> main
     return await monitorFileUpload(req.payload);
 }, 'File Upload Monitoring'));
 
-<<<<<<< HEAD
 resolver.define('getRecentUploads', withErrorHandling(async (req) => {
-=======
-resolver.define('getRecentUploads', async (req) => {
->>>>>>> main
     return await getRecentUploads();
 }, 'Get Recent Uploads'));
 
-<<<<<<< HEAD
 resolver.define('updateFileValidationStatus', withErrorHandling(async (req) => {
-=======
-resolver.define('updateFileValidationStatus', async (req) => {
->>>>>>> main
     const { fileId, validationResult } = req.payload;
     return await updateFileValidationStatus(fileId, validationResult);
 }, 'Update File Validation Status', ['fileId', 'validationResult']));
 
-<<<<<<< HEAD
 // Jira Integration
 resolver.define('getIssueAttachments', withErrorHandling(async (req) => {
-=======
-resolver.define('getIssueAttachments', async (req) => {
->>>>>>> main
     const { issueKey } = req.payload;
     return await getIssueAttachments(issueKey);
 }, 'Get Issue Attachments', ['issueKey']));
 
-<<<<<<< HEAD
 resolver.define('processExcelAttachment', withErrorHandling(async (req) => {
-=======
-resolver.define('processExcelAttachment', async (req) => {
->>>>>>> main
     const { attachmentId, filename } = req.payload;
     return await processExcelAttachment(attachmentId, filename);
 }, 'Process Excel Attachment', ['attachmentId', 'filename']));
@@ -187,152 +130,113 @@ resolver.define('getCacheStatistics', withErrorHandling(async (req) => {
 }, 'Get Cache Statistics'));
 
 
-<<<<<<< HEAD
-=======
-resolver.define('storeUploadedFile', async (req) => {
-    const { fileData, validationResult } = req.payload;
-    return await storeUploadedFile(fileData, validationResult);
-});
+export const handler = resolver.getDefinitions();
 
-resolver.define('getPendingFiles', async (req) => {
-    return await getPendingFiles();
-});
-
-resolver.define('attachFileToIssue', async (req) => {
-    const { issueKey, fileId } = req.payload;
-    return await attachFileToIssue(issueKey, fileId);
-});
-
-resolver.define('attachAllPendingFiles', async (req) => {
-    const { issueKey } = req.payload;
-    return await attachAllPendingFiles(issueKey);
-});
-
-resolver.define('removePendingFile', async (req) => {
-    const { fileId } = req.payload;
-    return await removePendingFile(fileId);
-});
-
-resolver.define('createIssueWithFiles', async (req) => {
-    const { summary, description, fileIds } = req.payload;
-    return await createIssueWithFiles(summary, description, fileIds);
-});
-
-// NEW: Improved file attachment methods
-resolver.define('createIssueWithFileInfo', async (req) => {
-    const { summary, description, fileIds } = req.payload;
-    return await createIssueWithFileInfo(summary, description, fileIds);
-});
-
-resolver.define('createIssueWithDownloadableFiles', async (req) => {
-    const { summary, description, fileIds } = req.payload;
-    return await createIssueWithDownloadableFiles(summary, description, fileIds);
-});
-
-resolver.define('attemptPostCreationAttachment', async (req) => {
-    const { issueKey, fileIds } = req.payload;
-    return await attemptPostCreationAttachment(issueKey, fileIds);
-});
-
-resolver.define('getFileContent', async (req) => {
-    const { fileId } = req.payload;
-    return await getFileContent(fileId);
-});
-
-resolver.define('cleanupOldFiles', async (req) => {
-    const { maxAgeHours } = req.payload;
-    return await cleanupOldFiles(maxAgeHours);
-});
-
-// NEW: Post-creation attachment methods
-resolver.define('storeFilesForPostAttachment', async (req) => {
-    const { fileIds, issueContext } = req.payload;
-    return await storeFilesForPostAttachment(fileIds, issueContext);
-});
-
-resolver.define('processPostCreationAttachments', async (req) => {
-    const { issueKey } = req.payload;
-    return await processPostCreationAttachments(issueKey);
-});
-
-resolver.define('getPendingAttachments', async (req) => {
-    return await getPendingAttachments();
-});
-
-resolver.define('getIssueCommentData', async (req) => {
-    const { issueKey } = req.payload;
-    return await getIssueCommentData(issueKey);
-});
-
-resolver.define('cleanupOldAttachmentRequests', async (req) => {
-    const { maxAgeHours } = req.payload;
-    return await cleanupOldAttachmentRequests(maxAgeHours);
-});
-
-// NEW: Analysis reporting method
-resolver.define('createIssueWithAnalysisReport', async (req) => {
-    const { summary, description, fileIds } = req.payload;
-    return await createIssueWithAnalysisReport(summary, description, fileIds);
-});
-
-// NEW: Real file attachment methods
-resolver.define('createIssueWithRealAttachment', async (req) => {
-    const { summary, description, fileIds } = req.payload;
-    return await createIssueWithRealFileAttachment(summary, description, fileIds);
-});
-
-resolver.define('createIssueWithAlternativeAttachment', async (req) => {
-    const { summary, description, fileIds } = req.payload;
-    return await createIssueWithAlternativeAttachment(summary, description, fileIds);
-});
-
-// Issue created handler - automatically attach pending files
+// Issue Created Handler - Triggered when a new issue is created
 export const issueCreatedHandler = async (event, context) => {
-    console.log('=== ISSUE CREATED HANDLER ===');
-    console.log('Event:', JSON.stringify(event, null, 2));
+    const log = createLogger('IssueCreatedHandler');
     
     try {
-        const issueKey = event.issue.key;
-        console.log('New issue created:', issueKey);
+        log.info('issueCreatedHandler', 'Issue created event received', {
+            issueKey: event.issue?.key,
+            issueType: event.issue?.fields?.issuetype?.name,
+            eventType: event.eventType
+        });
+
+        const { issue } = event;
         
-        // Get all pending files
-        const pendingFilesResult = await getPendingFiles();
-        
-        if (pendingFilesResult.success && pendingFilesResult.files.length > 0) {
-            console.log(`Found ${pendingFilesResult.files.length} pending files to attach`);
-            
-            // Attach all pending files to the new issue
-            const attachResult = await attachAllPendingFiles(issueKey);
-            
-            if (attachResult.success) {
-                console.log(`Successfully attached files to issue ${issueKey}`);
-            } else {
-                console.error('Failed to attach files:', attachResult.error);
-            }
-        } else {
-            console.log('No pending files to attach');
+        if (!issue) {
+            log.warn('issueCreatedHandler', 'No issue data in event');
+            return { success: false, error: 'No issue data provided' };
         }
+
+        // You can add custom logic here for when issues are created
+        // For example: auto-attach validation rules, initialize file monitoring, etc.
+        
+        log.info('issueCreatedHandler', 'Issue creation handled successfully', {
+            issueKey: issue.key
+        });
+
+        return { 
+            success: true, 
+            message: `Issue ${issue.key} creation handled successfully` 
+        };
         
     } catch (error) {
-        console.error('Error in issue created handler:', error);
+        log.error('issueCreatedHandler', 'Error handling issue creation', error);
+        return { 
+            success: false, 
+            error: error.message || 'Failed to handle issue creation' 
+        };
     }
 };
 
-// Web trigger handlers for file operations
+// File Upload Trigger - Web trigger for handling file uploads
 export const fileUploadTrigger = async (payload, context) => {
+    const log = createLogger('FileUploadTrigger');
+    
     try {
-        const requestBody = JSON.parse(payload.body);
-        const { fileData, validationResult } = requestBody;
-        const result = await storeUploadedFile(fileData, validationResult);
-        
+        log.info('fileUploadTrigger', 'File upload trigger received', {
+            method: payload.method,
+            path: payload.path,
+            hasBody: !!payload.body
+        });
+
+        if (payload.method === 'POST') {
+            const requestBody = JSON.parse(payload.body);
+            const { fileData, fileName, fileType, issueKey } = requestBody;
+            
+            log.info('fileUploadTrigger', 'Processing file upload', {
+                fileName,
+                fileType,
+                issueKey,
+                hasFileData: !!fileData
+            });
+
+            // Monitor the file upload
+            const monitorResult = await monitorFileUpload({
+                fileName,
+                fileType,
+                fileData,
+                issueKey,
+                uploadTime: new Date().toISOString()
+            });
+
+            return {
+                statusCode: monitorResult.success ? 200 : 400,
+                headers: {
+                    'Content-Type': ['application/json']
+                },
+                body: JSON.stringify(monitorResult)
+            };
+        }
+
+        // Handle GET requests for file upload status
+        if (payload.method === 'GET') {
+            const recentUploads = await getRecentUploads();
+            
+            return {
+                statusCode: recentUploads.success ? 200 : 400,
+                headers: {
+                    'Content-Type': ['application/json']
+                },
+                body: JSON.stringify(recentUploads)
+            };
+        }
+
         return {
-            statusCode: result.success ? 200 : 400,
+            statusCode: 405,
             headers: {
                 'Content-Type': ['application/json']
             },
-            body: JSON.stringify(result)
+            body: JSON.stringify({
+                success: false,
+                error: 'Method not allowed'
+            })
         };
+        
     } catch (error) {
+        log.error('fileUploadTrigger', 'Error in file upload trigger', error);
         return {
             statusCode: 500,
             headers: {
@@ -340,14 +244,11 @@ export const fileUploadTrigger = async (payload, context) => {
             },
             body: JSON.stringify({
                 success: false,
-                error: error.message
+                error: error.message || 'Failed to process file upload'
             })
         };
     }
 };
-
->>>>>>> main
-export const handler = resolver.getDefinitions();
 
 export const createIssueTrigger = async (payload, context) => {
     try {

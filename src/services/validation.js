@@ -178,8 +178,11 @@ Please return a JSON response with this exact structure:
             "type": "<issue type>",
             "severity": "<low|medium|high>",
             "description": "<description>",
-            "affectedRows": [<row numbers>],
-            "suggestion": "<how to fix>"
+            "row": <row number>,
+            "field": "<field name>",
+            "message": "<issue description>",
+            "suggestion": "<how to fix>",
+            "priority": "<low|medium|high>"
         }
     ],
     "dataQuality": {
@@ -187,7 +190,9 @@ Please return a JSON response with this exact structure:
         "accuracy": <0-100>
     },
     "recommendations": ["<recommendation 1>", "<recommendation 2>"]
-}`;
+}
+
+IMPORTANT: For each issue, include the specific row number where the issue occurs. Row numbers should start from 1 (header row) or 2 (first data row) depending on the issue type.`;
 
         const completion = await callOpenAIValidation(prompt);
         const responseContent = completion.choices[0].message.content;

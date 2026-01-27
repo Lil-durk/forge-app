@@ -139,7 +139,7 @@ function App() {
         </div>
 
         {/* Page Context Display - Shows which request page we're currently on */}
-        <PageContextDisplay />
+        {/* <PageContextDisplay /> */}
 
         <FileUpload
           onFileUpload={handleFileUploadEvent}
@@ -148,7 +148,7 @@ function App() {
           error={state.error}
         />
 
-        <DataPreview excelData={state.excelData} />
+        {/* <DataPreview excelData={state.excelData} /> */}
 
         {/* Original Classic Scoring System */}
         <ValidationResults 
@@ -159,10 +159,10 @@ function App() {
         />
 
         {/* New Health Analytics System */}
-        <AlternativeScoring 
+        {/* <AlternativeScoring 
           validationResult={state.validationResult}
           isActive={true}
-        />
+        /> */}
 
         {/* Clear Cache Button - Always visible for developers */}
         <ClearCacheButton 

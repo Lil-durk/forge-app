@@ -221,7 +221,9 @@ const ValidationResults = ({ validationResult, isUsingCachedResult = false, exce
                     <div className="issue-header enhanced">
                       <span className="issue-icon">{getIssueIcon(issue.type)}</span>
                       <span className="issue-field">{issue.field}</span>
-                      <span className="issue-row">Row {issue.row}</span>
+                      <span className="issue-row">
+                        Row {issue.row || (issue.affectedRows && issue.affectedRows[0]) || 'Unknown'}
+                      </span>
                       {issue.priority && (
                         <span className="priority-badge">
                           {getPriorityIcon(issue.priority)} {issue.priority.toUpperCase()}

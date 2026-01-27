@@ -76,13 +76,10 @@ permissions:
     - storage:app
     - read:jira-work
     - read:attachment:jira
-<<<<<<< HEAD
     - read:servicedesk-request
     - read:jira-user
-=======
     - write:jira-work
     - write:attachment:jira
->>>>>>> main
   external:
     fetch:
       backend:

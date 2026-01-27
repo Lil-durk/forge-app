@@ -50,6 +50,8 @@ export const processUploadedFile = async (file, {
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
       
       console.log('Excel parsed successfully:', jsonData.length, 'rows');
+      console.log('JSON structure (first 3 rows):', JSON.stringify(jsonData.slice(0, 3), null, 2));
+      console.log('All column headers:', Object.keys(jsonData[0] || {}));
       setExcelData(jsonData);
       
       // Check if file content has changed compared to previous uploads
